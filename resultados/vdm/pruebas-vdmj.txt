@@ -1,0 +1,8 @@
+Parsed 3 classes in 0.165 secs. No syntax errors
+Type checked 3 classes in 0.365 secs. No type errors
+WARNING: Final field classDefinition in class com.fujitsu.vdmj.po.statements.POAssignmentStatement has been mutated reflectively by class com.fujitsu.vdmj.mapper.ClassMapper in unnamed module @4d722ac9 (vdmj-4.7.0.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+Initialized 3 classes in 0.488 secs. No init errors
+[true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]
+Bye

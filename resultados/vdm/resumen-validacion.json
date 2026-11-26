@@ -1,0 +1,10 @@
+{
+  "fecha": "2026-11-25T16:27:39.4629593-05:00",
+  "pruebasConcurrentes": false,
+  "demostracionMecanizada": false,
+  "herramienta": "VDMJ 4.7.0",
+  "decisionesDemostradas": 6,
+  "escenariosConformes": 29,
+  "rechazosEsperados": 8,
+  "obligacionesGeneradas": 88
+}

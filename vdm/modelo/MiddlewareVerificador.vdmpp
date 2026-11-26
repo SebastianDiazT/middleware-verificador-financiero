@@ -1,0 +1,233 @@
+class MiddlewareVerificador
+
+types
+  public EstadoBanco = Banco`EstadoBanco;
+  public EstadoTransaccion = <PENDIENTE> | <AUTORIZADA> | <RECHAZADA>;
+  public Resultado = <AUTORIZADA> | <RECHAZADA>;
+  public TipoOperacion = <YAPEO> | <TRANSFERENCIA_INTERBANCARIA>;
+  public ResultadoVerificacion = <VALIDA> | <DUPLICADA>
+    | <BANCO_NO_DISPONIBLE> | <CONFLICTO> | <SIN_DIRECTORIO>
+    | <DESACTUALIZADO>;
+
+  -- Registro de admision con monto positivo y evidencia de disponibilidad.
+  public RegistroOperacion :: idTransaccion : token
+                              idBancoDestino : token
+                              monto : real
+                              estadoBanco : EstadoBanco
+                              resultado : Resultado
+  inv mk_RegistroOperacion(-, -, m, eb, r) ==
+    m > 0 and (r = <AUTORIZADA> => eb = <OPERATIVO>);
+
+  -- Identificadores opacos; se conservan en cada reintento.
+  -- El monto se expresa en soles.
+  public Solicitud :: idTransaccion : token
+                      idBancoDestino : token
+                      idUsuario : token
+                      idSolicitud : token
+                      idReceptor : token
+                      monto : real
+                      tipoOperacion : TipoOperacion
+  inv s == s.monto > 0;
+
+  public Autorizacion :: registro : RegistroOperacion
+                         instante : nat
+                         observadoEn : nat;
+
+values
+  public MAX_EDAD : nat = 5; -- Unidades logicas; no es un SLA real.
+
+instance variables
+  -- Conjunto de IDs, secuencia de autorizaciones y directorio bancario.
+  private idsProcesados : set of token := {};
+  private historial : seq of token := [];
+  private directorio : map token to Banco := {|->};
+  private solicitudes : map token to Solicitud := {|->};
+  private autorizadas : seq of Autorizacion := [];
+  private estados : map token to EstadoTransaccion := {|->};
+  private ahora : nat := 0;
+
+  inv
+    idsProcesados = elems historial
+    and len historial = card idsProcesados
+    and dom solicitudes = idsProcesados
+    and len autorizadas = len historial
+    and (forall b in set dom directorio &
+      directorio(b).obtenerId() = b
+      and directorio(b).obtenerObservacion().instante <= ahora)
+    and idsProcesados =
+      {id | id in set dom estados & estados(id) = <AUTORIZADA>}
+    and (forall i in set inds historial &
+      let id = historial(i), a = autorizadas(i), s = solicitudes(id) in
+        s.idTransaccion = id
+        and a.registro = mk_RegistroOperacion(
+          id, s.idBancoDestino, s.monto, <OPERATIVO>, <AUTORIZADA>)
+        and a.observadoEn <= a.instante
+        and a.instante <= ahora
+        and a.instante - a.observadoEn <= MAX_EDAD);
+
+operations
+  -- La identidad es global por idTransaccion, incluso entre bancos.
+  public procesar : Solicitud ==> ResultadoVerificacion
+  procesar(s) ==
+    if s.idTransaccion in set idsProcesados then
+      if solicitudes(s.idTransaccion) = s then return <DUPLICADA>
+      else return <CONFLICTO>
+    else
+    (
+      estados := estados ++ {s.idTransaccion |-> <PENDIENTE>};
+      if s.idBancoDestino not in set dom directorio then
+      (
+        estados := estados ++ {s.idTransaccion |-> <RECHAZADA>};
+        return <SIN_DIRECTORIO>
+      )
+      else
+        let o = directorio(s.idBancoDestino).obtenerObservacion() in
+          if o.estado <> <OPERATIVO> then
+          (
+            estados := estados ++ {s.idTransaccion |-> <RECHAZADA>};
+            return <BANCO_NO_DISPONIBLE>
+          )
+          elseif ahora - o.instante > MAX_EDAD then
+          (
+            estados := estados ++ {s.idTransaccion |-> <RECHAZADA>};
+            return <DESACTUALIZADO>
+          )
+          else (registrarId(s, o); return <VALIDA>)
+    )
+  post
+    ahora = ahora~ and directorio = directorio~
+    -- Primero se especifica la respuesta a partir del estado de entrada.
+    -- procesar no modifica las observaciones de los objetos Banco.
+    and RESULT =
+      (if s.idTransaccion in set idsProcesados~ then
+         if solicitudes~(s.idTransaccion) = s then <DUPLICADA>
+         else <CONFLICTO>
+       elseif s.idBancoDestino not in set dom directorio~ then <SIN_DIRECTORIO>
+       else
+         let o = directorio~(s.idBancoDestino).obtenerObservacion() in
+           if o.estado <> <OPERATIVO> then <BANCO_NO_DISPONIBLE>
+           elseif ahora~ - o.instante > MAX_EDAD then <DESACTUALIZADO>
+           else <VALIDA>)
+    and (if RESULT = <VALIDA> then
+      s.idTransaccion not in set idsProcesados~
+      and idsProcesados = idsProcesados~ union {s.idTransaccion}
+      and historial = historial~ ^ [s.idTransaccion]
+      and solicitudes = solicitudes~ munion {s.idTransaccion |-> s}
+      and autorizadas = autorizadas~ ^ [mk_Autorizacion(
+        mk_RegistroOperacion(s.idTransaccion, s.idBancoDestino,
+                            s.monto, <OPERATIVO>, <AUTORIZADA>),
+        ahora~, directorio(s.idBancoDestino).obtenerObservacion().instante)]
+      and estados = estados~ ++ {s.idTransaccion |-> <AUTORIZADA>}
+    else
+      idsProcesados = idsProcesados~ and historial = historial~
+      and solicitudes = solicitudes~ and autorizadas = autorizadas~
+      and (if s.idTransaccion in set idsProcesados~ then estados = estados~
+           else estados = estados~ ++ {s.idTransaccion |-> <RECHAZADA>}));
+
+  -- Privado: nadie puede insertar un ID saltandose las verificaciones.
+  private registrarId : Solicitud * Banco`Observacion ==> ()
+  registrarId(s, o) ==
+    atomic
+    (idsProcesados := idsProcesados union {s.idTransaccion};
+     historial := historial ^ [s.idTransaccion];
+     solicitudes := solicitudes munion {s.idTransaccion |-> s};
+     autorizadas := autorizadas ^ [mk_Autorizacion(
+       mk_RegistroOperacion(s.idTransaccion, s.idBancoDestino,
+                           s.monto, o.estado, <AUTORIZADA>),
+       ahora, o.instante)];
+     estados := estados ++ {s.idTransaccion |-> <AUTORIZADA>})
+  pre
+    s.idTransaccion not in set idsProcesados
+    and s.idBancoDestino in set dom directorio
+    and o = directorio(s.idBancoDestino).obtenerObservacion()
+    and o.estado = <OPERATIVO>
+    and o.instante <= ahora and ahora - o.instante <= MAX_EDAD
+  post
+    idsProcesados = idsProcesados~ union {s.idTransaccion}
+    and historial = historial~ ^ [s.idTransaccion]
+    and solicitudes = solicitudes~ munion {s.idTransaccion |-> s}
+    and autorizadas = autorizadas~ ^ [mk_Autorizacion(
+      mk_RegistroOperacion(s.idTransaccion, s.idBancoDestino,
+                          s.monto, o.estado, <AUTORIZADA>),
+      ahora~, o.instante)]
+    and estados = estados~ ++ {s.idTransaccion |-> <AUTORIZADA>}
+    and ahora = ahora~ and directorio = directorio~;
+
+  -- Crea y conserva el objeto: no recibe ni entrega referencias Banco.
+  public registrarBanco : token * EstadoBanco ==> ()
+  registrarBanco(id, e) ==
+    directorio := directorio munion {id |-> new Banco(id, e, ahora)}
+  pre id not in set dom directorio
+  post dom directorio = dom directorio~ union {id}
+    and directorio(id).obtenerId() = id
+    and directorio(id).obtenerObservacion() = mk_Banco`Observacion(e, ahora)
+    and idsProcesados = idsProcesados~ and historial = historial~
+    and solicitudes = solicitudes~ and autorizadas = autorizadas~
+    and estados = estados~ and ahora = ahora~;
+
+  public actualizarBanco : token * EstadoBanco ==> ()
+  actualizarBanco(id, e) == directorio(id).actualizarEstado(e, ahora)
+  pre id in set dom directorio
+  post directorio(id).obtenerObservacion() = mk_Banco`Observacion(e, ahora)
+    and dom directorio = dom directorio~
+    and idsProcesados = idsProcesados~ and historial = historial~
+    and solicitudes = solicitudes~ and autorizadas = autorizadas~
+    and estados = estados~ and ahora = ahora~;
+
+  public verificarDuplicado : token ==> bool
+  verificarDuplicado(id) == return id in set idsProcesados;
+
+  -- Consulta orientativa: procesar siempre vuelve a validar y registrar.
+  public verificarBanco : token ==> bool
+  verificarBanco(id) ==
+    if id not in set dom directorio then return false
+    else let o = directorio(id).obtenerObservacion() in
+      return o.estado = <OPERATIVO> and o.instante <= ahora
+             and ahora - o.instante <= MAX_EDAD;
+
+  public avanzarTiempo : nat1 ==> ()
+  avanzarTiempo(delta) == ahora := ahora + delta
+  post ahora = ahora~ + delta and directorio = directorio~
+    and idsProcesados = idsProcesados~ and historial = historial~
+    and solicitudes = solicitudes~ and autorizadas = autorizadas~
+    and estados = estados~;
+
+  public verIdsProcesados : () ==> set of token
+  verIdsProcesados() == return idsProcesados;
+  public verHistorial : () ==> seq of token
+  verHistorial() == return historial;
+  public verAutorizadas : () ==> seq of Autorizacion
+  verAutorizadas() == return autorizadas;
+  public verSolicitudes : () ==> map token to Solicitud
+  verSolicitudes() == return solicitudes;
+  public verEstados : () ==> map token to EstadoTransaccion
+  verEstados() == return estados;
+  public verBancos : () ==> set of token
+  verBancos() == return dom directorio;
+  public verBanco : token ==> Banco`Observacion
+  verBanco(id) == return directorio(id).obtenerObservacion()
+  pre id in set dom directorio;
+  public verTiempo : () ==> nat
+  verTiempo() == return ahora;
+
+sync
+  -- Exclusiones locales: entre nombres distintos y consigo mismos.
+  mutex(procesar, registrarBanco, actualizarBanco, avanzarTiempo,
+    verificarDuplicado, verificarBanco, verIdsProcesados, verHistorial,
+    verAutorizadas, verSolicitudes, verEstados, verBancos, verBanco, verTiempo);
+  mutex(procesar);
+  mutex(registrarBanco);
+  mutex(actualizarBanco);
+  mutex(avanzarTiempo);
+  mutex(verificarDuplicado);
+  mutex(verificarBanco);
+  mutex(verIdsProcesados);
+  mutex(verHistorial);
+  mutex(verAutorizadas);
+  mutex(verSolicitudes);
+  mutex(verEstados);
+  mutex(verBancos);
+  mutex(verBanco);
+  mutex(verTiempo);
+
+end MiddlewareVerificador

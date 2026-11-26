@@ -1,0 +1,57 @@
+class DemostracionMiddleware
+
+types
+  public Paso :: escenario : seq of char
+                 instante : nat
+                 respuesta : MiddlewareVerificador`ResultadoVerificacion
+                 estadoDelId : MiddlewareVerificador`EstadoTransaccion
+                 totalAutorizaciones : nat
+                 instanteObservadoAlAutorizar : [nat];
+
+operations
+  -- Una misma solicitud se reintenta y el ultimo paso altera sus campos.
+  public static Ejecutar : () ==> seq of Paso
+  Ejecutar() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl tx : token := mk_token("TX001");
+    dcl banco : token := mk_token("BANCO01");
+    dcl s : MiddlewareVerificador`Solicitud := mk_MiddlewareVerificador`Solicitud(
+      tx, banco, mk_token("USR001"), mk_token("REQ001"),
+      mk_token("USR002"), 25.50, <TRANSFERENCIA_INTERBANCARIA>);
+    dcl pasos : seq of Paso := [];
+    dcl r : MiddlewareVerificador`ResultadoVerificacion;
+
+    r := g.procesar(s);
+    pasos := pasos ^ [capturar("Sin banco en el directorio", g, tx, r)];
+
+    g.registrarBanco(banco, <MANTENIMIENTO>);
+    r := g.procesar(s);
+    pasos := pasos ^ [capturar("Banco en mantenimiento", g, tx, r)];
+
+    g.actualizarBanco(banco, <OPERATIVO>);
+    g.avanzarTiempo(MiddlewareVerificador`MAX_EDAD + 1);
+    r := g.procesar(s);
+    pasos := pasos ^ [capturar("Observacion con edad 6", g, tx, r)];
+
+    g.actualizarBanco(banco, <OPERATIVO>);
+    g.avanzarTiempo(MiddlewareVerificador`MAX_EDAD);
+    r := g.procesar(s);
+    pasos := pasos ^ [capturar("Observacion con edad 5", g, tx, r)];
+
+    g.avanzarTiempo(1);
+    r := g.procesar(s);
+    pasos := pasos ^ [capturar("Reintento exacto con dato vencido", g, tx, r)];
+
+    r := g.procesar(mu(s, idBancoDestino |-> mk_token("BANCO02")));
+    pasos := pasos ^ [capturar("Mismo ID con otro banco ausente", g, tx, r)];
+    return pasos
+  );
+
+  private static capturar : seq of char * MiddlewareVerificador * token *
+    MiddlewareVerificador`ResultadoVerificacion ==> Paso
+  capturar(escenario, g, tx, r) ==
+    let a = g.verAutorizadas(), estados = g.verEstados() in
+      return mk_Paso(escenario, g.verTiempo(), r, estados(tx), len a,
+        if a = [] then nil else a(1).observadoEn);
+
+end DemostracionMiddleware

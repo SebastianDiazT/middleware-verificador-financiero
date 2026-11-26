@@ -1,0 +1,104 @@
+CASO: Registro con monto cero
+EXPRESION: mk_MiddlewareVerificador`RegistroOperacion(mk_token("TX001"), mk_token("BANCO01"), 0, <OPERATIVO>, <AUTORIZADA>)
+Parsed 2 classes in 0.109 secs. No syntax errors
+Type checked 2 classes in 0.386 secs. No type errors
+WARNING: Final field classDefinition in class com.fujitsu.vdmj.po.statements.POAssignmentStatement has been mutated reflectively by class com.fujitsu.vdmj.mapper.ClassMapper in unnamed module @674bd420 (vdmj-4.7.0.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+Initialized 2 classes in 0.389 secs. No init errors
+Execution: Error 4079: Type invariant violated by mk_RegistroOperacion arguments in 'Banco' (console) at line 1:1
+In root context of global static scope
+Bye
+
+CASO: Registro con monto negativo
+EXPRESION: mk_MiddlewareVerificador`RegistroOperacion(mk_token("TX001"), mk_token("BANCO01"), -10, <OPERATIVO>, <AUTORIZADA>)
+Parsed 2 classes in 0.114 secs. No syntax errors
+Type checked 2 classes in 0.291 secs. No type errors
+WARNING: Final field classDefinition in class com.fujitsu.vdmj.po.statements.POAssignmentStatement has been mutated reflectively by class com.fujitsu.vdmj.mapper.ClassMapper in unnamed module @674bd420 (vdmj-4.7.0.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+Initialized 2 classes in 0.339 secs. No init errors
+Execution: Error 4079: Type invariant violated by mk_RegistroOperacion arguments in 'Banco' (console) at line 1:1
+In root context of global static scope
+Bye
+
+CASO: Registro autorizado en mantenimiento
+EXPRESION: mk_MiddlewareVerificador`RegistroOperacion(mk_token("TX001"), mk_token("BANCO01"), 10.50, <MANTENIMIENTO>, <AUTORIZADA>)
+Parsed 2 classes in 0.122 secs. No syntax errors
+Type checked 2 classes in 0.286 secs. No type errors
+WARNING: Final field classDefinition in class com.fujitsu.vdmj.po.statements.POAssignmentStatement has been mutated reflectively by class com.fujitsu.vdmj.mapper.ClassMapper in unnamed module @674bd420 (vdmj-4.7.0.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+Initialized 2 classes in 0.339 secs. No init errors
+Execution: Error 4079: Type invariant violated by mk_RegistroOperacion arguments in 'Banco' (console) at line 1:1
+In root context of global static scope
+Bye
+
+CASO: Registro autorizado fuera de servicio
+EXPRESION: mk_MiddlewareVerificador`RegistroOperacion(mk_token("TX001"), mk_token("BANCO01"), 10.50, <FUERA_SERVICIO>, <AUTORIZADA>)
+Parsed 2 classes in 0.108 secs. No syntax errors
+Type checked 2 classes in 0.318 secs. No type errors
+WARNING: Final field classDefinition in class com.fujitsu.vdmj.po.statements.POAssignmentStatement has been mutated reflectively by class com.fujitsu.vdmj.mapper.ClassMapper in unnamed module @674bd420 (vdmj-4.7.0.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+Initialized 2 classes in 0.429 secs. No init errors
+Execution: Error 4079: Type invariant violated by mk_RegistroOperacion arguments in 'Banco' (console) at line 1:1
+In root context of global static scope
+Bye
+
+CASO: Solicitud con monto cero
+EXPRESION: mk_MiddlewareVerificador`Solicitud(mk_token("TX001"), mk_token("BANCO01"), mk_token("USR001"), mk_token("REQ001"), mk_token("USR002"), 0, <YAPEO>)
+Parsed 2 classes in 0.114 secs. No syntax errors
+Type checked 2 classes in 0.294 secs. No type errors
+WARNING: Final field classDefinition in class com.fujitsu.vdmj.po.statements.POAssignmentStatement has been mutated reflectively by class com.fujitsu.vdmj.mapper.ClassMapper in unnamed module @674bd420 (vdmj-4.7.0.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+Initialized 2 classes in 0.403 secs. No init errors
+Execution: Error 4079: Type invariant violated by mk_Solicitud arguments in 'Banco' (console) at line 1:1
+In root context of global static scope
+Bye
+
+CASO: Solicitud con monto negativo
+EXPRESION: mk_MiddlewareVerificador`Solicitud(mk_token("TX001"), mk_token("BANCO01"), mk_token("USR001"), mk_token("REQ001"), mk_token("USR002"), -1, <TRANSFERENCIA_INTERBANCARIA>)
+Parsed 2 classes in 0.11 secs. No syntax errors
+Type checked 2 classes in 0.31 secs. No type errors
+WARNING: Final field classDefinition in class com.fujitsu.vdmj.po.statements.POAssignmentStatement has been mutated reflectively by class com.fujitsu.vdmj.mapper.ClassMapper in unnamed module @674bd420 (vdmj-4.7.0.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+Initialized 2 classes in 0.34 secs. No init errors
+Execution: Error 4079: Type invariant violated by mk_Solicitud arguments in 'Banco' (console) at line 1:1
+In root context of global static scope
+Bye
+
+CASO: Reloj del banco retrocede
+EXPRESION: new Banco(mk_token("BANCO01"), <OPERATIVO>, 5).actualizarEstado(<MANTENIMIENTO>, 4)
+Parsed 2 classes in 0.106 secs. No syntax errors
+Type checked 2 classes in 0.305 secs. No type errors
+WARNING: Final field classDefinition in class com.fujitsu.vdmj.po.statements.POAssignmentStatement has been mutated reflectively by class com.fujitsu.vdmj.mapper.ClassMapper in unnamed module @674bd420 (vdmj-4.7.0.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+Initialized 2 classes in 0.349 secs. No init errors
+Execution: Error 4071: Precondition failure: pre_actualizarEstado in 'Banco' (vdm/modelo/Banco.vdmpp) at line 32:9
+	t = 4
+	self = Banco{#1, estado:=<OPERATIVO>, idBanco:=mk_token("BANCO01"), instante:=5}
+	e = <MANTENIMIENTO>
+In object context of pre_actualizarEstado(e, t, Banco`self) in 'Banco' (console) at line 1:1
+In root context of global static scope
+Bye
+
+CASO: Actualizar banco no registrado
+EXPRESION: new MiddlewareVerificador().actualizarBanco(mk_token("BANCO01"), <OPERATIVO>)
+Parsed 2 classes in 0.112 secs. No syntax errors
+Type checked 2 classes in 0.3 secs. No type errors
+WARNING: Final field classDefinition in class com.fujitsu.vdmj.po.statements.POAssignmentStatement has been mutated reflectively by class com.fujitsu.vdmj.mapper.ClassMapper in unnamed module @2b0f373b (vdmj-4.7.0.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+Initialized 2 classes in 0.399 secs. No init errors
+Execution: Error 4071: Precondition failure: pre_actualizarBanco in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 170:10
+	self = MiddlewareVerificador{#1, solicitudes:={|->}, auto...Procesados:={}, directorio:={|->}, estados:={|->}}
+	e = <OPERATIVO>
+	id = mk_token("BANCO01")
+In object context of pre_actualizarBanco(id, e, MiddlewareVerificador`self) in 'Banco' (console) at line 1:1
+In root context of global static scope
+Bye
+

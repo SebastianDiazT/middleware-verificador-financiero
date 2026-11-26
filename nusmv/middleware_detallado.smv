@@ -1,0 +1,272 @@
+-- Admision previa al debito de un ID de transaccion y un banco de destino.
+-- Los datos A y B representan dos contenidos distintos de Solicitud para ese ID.
+-- Se supone una solicitud bien tipada y con monto positivo.
+-- Solo se toma una entrada en ESPERA. Las entradas son libres en cada paso.
+MODULE main
+
+IVAR
+  enviar          : boolean;
+  datosEntrada    : {DATOS_A, DATOS_B};
+  bancoEntrada    : {AUSENTE, OPERATIVO, MANTENIMIENTO, FUERA_SERVICIO};
+  vigenciaEntrada : {VIGENTE, VENCIDA};
+
+VAR
+  fase : {ESPERA, VALIDAR_ID, COMPARAR_SOLICITUD, CONSULTAR_DIRECTORIO,
+          EVALUAR_ESTADO_BANCO, VALIDAR_VIGENCIA, REGISTRAR_AUTORIZACION,
+          FINALIZADA};
+  datosIntento       : {SIN_DATOS, DATOS_A, DATOS_B};
+  bancoConsultado    : {AUSENTE, OPERATIVO, MANTENIMIENTO, FUERA_SERVICIO};
+  vigenciaConsultada : {VIGENTE, VENCIDA};
+  respuesta : {SIN_RESPUESTA, VALIDA, DUPLICADA, CONFLICTO, SIN_DIRECTORIO,
+               BANCO_NO_DISPONIBLE, DESACTUALIZADO};
+
+  -- Memoria persistente al pasar de un intento al siguiente.
+  idRegistrado       : boolean;
+  datosRegistrados   : {SIN_DATOS, DATOS_A, DATOS_B};
+  autorizaciones     : 0..2; -- 2 representa dos o mas, para detectar el error.
+  bancoAlAutorizar   : {SIN_EVIDENCIA, AUSENTE, OPERATIVO, MANTENIMIENTO,
+                       FUERA_SERVICIO};
+  vigenciaAlAutorizar : {SIN_EVIDENCIA, VIGENTE, VENCIDA};
+
+DEFINE
+  t00_esperar       := fase = ESPERA & !enviar;
+  t01_capturar      := fase = ESPERA & enviar;
+  t02_id_registrado := fase = VALIDAR_ID & idRegistrado;
+  t03_id_libre      := fase = VALIDAR_ID & !idRegistrado;
+  t04_igual         := fase = COMPARAR_SOLICITUD & datosIntento = datosRegistrados;
+  t05_diferente     := fase = COMPARAR_SOLICITUD & datosIntento != datosRegistrados;
+  t06_sin_entrada   := fase = CONSULTAR_DIRECTORIO & bancoConsultado = AUSENTE;
+  t07_con_entrada   := fase = CONSULTAR_DIRECTORIO & bancoConsultado != AUSENTE;
+  t08_no_operativo  := fase = EVALUAR_ESTADO_BANCO &
+                       (bancoConsultado = MANTENIMIENTO | bancoConsultado = FUERA_SERVICIO);
+  t09_operativo     := fase = EVALUAR_ESTADO_BANCO & bancoConsultado = OPERATIVO;
+  t10_vencida       := fase = VALIDAR_VIGENCIA & vigenciaConsultada = VENCIDA;
+  t11_vigente       := fase = VALIDAR_VIGENCIA & vigenciaConsultada = VIGENTE;
+  t12_registrar     := fase = REGISTRAR_AUTORIZACION;
+  t13_rearmar       := fase = FINALIZADA;
+
+ASSIGN
+  init(fase)              := ESPERA;
+  init(datosIntento)      := SIN_DATOS;
+  init(bancoConsultado)   := AUSENTE;
+  init(vigenciaConsultada):= VENCIDA;
+  init(respuesta)         := SIN_RESPUESTA;
+  init(idRegistrado)      := FALSE;
+  init(datosRegistrados)  := SIN_DATOS;
+  init(autorizaciones)    := 0;
+  init(bancoAlAutorizar)   := SIN_EVIDENCIA;
+  init(vigenciaAlAutorizar):= SIN_EVIDENCIA;
+
+  next(fase) := case
+    t00_esperar       : ESPERA;
+    t01_capturar      : VALIDAR_ID;
+    t02_id_registrado : COMPARAR_SOLICITUD;
+    t03_id_libre      : CONSULTAR_DIRECTORIO;
+    t04_igual | t05_diferente | t06_sin_entrada | t08_no_operativo |
+    t10_vencida | t12_registrar : FINALIZADA;
+    t07_con_entrada   : EVALUAR_ESTADO_BANCO;
+    t09_operativo     : VALIDAR_VIGENCIA;
+    t11_vigente       : REGISTRAR_AUTORIZACION;
+    t13_rearmar       : ESPERA;
+    TRUE              : fase;
+  esac;
+
+  -- La fotografia observada no cambia a mitad de la evaluacion.
+  -- Capturar al inicio abstrae la exclusion mutua durante procesar de VDM++.
+  next(datosIntento) := case
+    t01_capturar : datosEntrada;
+    TRUE         : datosIntento;
+  esac;
+
+  next(bancoConsultado) := case
+    t01_capturar : bancoEntrada;
+    TRUE         : bancoConsultado;
+  esac;
+
+  next(vigenciaConsultada) := case
+    t01_capturar : vigenciaEntrada;
+    TRUE         : vigenciaConsultada;
+  esac;
+
+  -- Cada resultado es visible en FINALIZADA durante un paso.
+  next(respuesta) := case
+    t04_igual        : DUPLICADA;
+    t05_diferente    : CONFLICTO;
+    t06_sin_entrada  : SIN_DIRECTORIO;
+    t08_no_operativo : BANCO_NO_DISPONIBLE;
+    t10_vencida      : DESACTUALIZADO;
+    t12_registrar    : VALIDA;
+    t13_rearmar      : SIN_RESPUESTA;
+    TRUE             : respuesta;
+  esac;
+
+  -- Solo T12 registra. El cuerpo de cada ASSIGN se aplica en el mismo paso.
+  next(idRegistrado) := case
+    t12_registrar : TRUE;
+    TRUE          : idRegistrado;
+  esac;
+
+  next(datosRegistrados) := case
+    t12_registrar : datosIntento;
+    TRUE          : datosRegistrados;
+  esac;
+
+  next(autorizaciones) := case
+    t12_registrar & autorizaciones < 2 : autorizaciones + 1;
+    TRUE                               : autorizaciones;
+  esac;
+
+  next(bancoAlAutorizar) := case
+    t12_registrar : bancoConsultado;
+    TRUE          : bancoAlAutorizar;
+  esac;
+
+  next(vigenciaAlAutorizar) := case
+    t12_registrar : vigenciaConsultada;
+    TRUE          : vigenciaAlAutorizar;
+  esac;
+
+-- Propiedades que se comprueban; el modelo no las impone como restricciones.
+LTLSPEC NAME P01_unicidad := G (autorizaciones <= 1);
+
+LTLSPEC NAME P02_evidencia_de_autorizacion :=
+  G (respuesta = VALIDA ->
+     (idRegistrado & autorizaciones = 1 & datosRegistrados = datosIntento &
+      bancoConsultado = OPERATIVO & vigenciaConsultada = VIGENTE &
+      bancoAlAutorizar = bancoConsultado & vigenciaAlAutorizar = vigenciaConsultada));
+
+LTLSPEC NAME P03_respuesta_eventual :=
+  G (fase = VALIDAR_ID -> F (fase = FINALIZADA));
+
+LTLSPEC NAME P04_prioridad_del_id :=
+  G ((fase = VALIDAR_ID & idRegistrado) -> X (fase = COMPARAR_SOLICITUD));
+
+LTLSPEC NAME P05_id_libre_consulta_directorio :=
+  G ((fase = VALIDAR_ID & !idRegistrado) -> X (fase = CONSULTAR_DIRECTORIO));
+
+LTLSPEC NAME P06_duplicado_exacto :=
+  G ((fase = COMPARAR_SOLICITUD & datosIntento = datosRegistrados) ->
+     X (fase = FINALIZADA & respuesta = DUPLICADA));
+
+LTLSPEC NAME P07_conflicto_de_datos :=
+  G ((fase = COMPARAR_SOLICITUD & datosIntento != datosRegistrados) ->
+     X (fase = FINALIZADA & respuesta = CONFLICTO));
+
+LTLSPEC NAME P08_directorio_ausente :=
+  G ((fase = CONSULTAR_DIRECTORIO & bancoConsultado = AUSENTE) ->
+     X (fase = FINALIZADA & respuesta = SIN_DIRECTORIO));
+
+LTLSPEC NAME P09_prioridad_de_estado_bancario :=
+  G ((fase = EVALUAR_ESTADO_BANCO &
+      (bancoConsultado = MANTENIMIENTO | bancoConsultado = FUERA_SERVICIO)) ->
+     X (fase = FINALIZADA & respuesta = BANCO_NO_DISPONIBLE));
+
+LTLSPEC NAME P10_observacion_vencida :=
+  G ((fase = VALIDAR_VIGENCIA & vigenciaConsultada = VENCIDA) ->
+     X (fase = FINALIZADA & respuesta = DESACTUALIZADO));
+
+LTLSPEC NAME P11_vigencia_habilita_registro :=
+  G ((fase = VALIDAR_VIGENCIA & vigenciaConsultada = VIGENTE) ->
+     X (fase = REGISTRAR_AUTORIZACION & X (fase = FINALIZADA & respuesta = VALIDA)));
+
+-- Se compara cada posible valor con el del siguiente paso, incluida la evidencia.
+LTLSPEC NAME P12_sin_efecto_fuera_del_registro :=
+  G (fase != REGISTRAR_AUTORIZACION ->
+     ((idRegistrado <-> X (idRegistrado)) &
+      (datosRegistrados = SIN_DATOS -> X (datosRegistrados = SIN_DATOS)) &
+      (datosRegistrados = DATOS_A -> X (datosRegistrados = DATOS_A)) &
+      (datosRegistrados = DATOS_B -> X (datosRegistrados = DATOS_B)) &
+      (autorizaciones = 0 -> X (autorizaciones = 0)) &
+      (autorizaciones = 1 -> X (autorizaciones = 1)) &
+      (autorizaciones = 2 -> X (autorizaciones = 2)) &
+      (bancoAlAutorizar = SIN_EVIDENCIA -> X (bancoAlAutorizar = SIN_EVIDENCIA)) &
+      (bancoAlAutorizar = AUSENTE -> X (bancoAlAutorizar = AUSENTE)) &
+      (bancoAlAutorizar = OPERATIVO -> X (bancoAlAutorizar = OPERATIVO)) &
+      (bancoAlAutorizar = MANTENIMIENTO -> X (bancoAlAutorizar = MANTENIMIENTO)) &
+      (bancoAlAutorizar = FUERA_SERVICIO -> X (bancoAlAutorizar = FUERA_SERVICIO)) &
+      (vigenciaAlAutorizar = SIN_EVIDENCIA -> X (vigenciaAlAutorizar = SIN_EVIDENCIA)) &
+      (vigenciaAlAutorizar = VIGENTE -> X (vigenciaAlAutorizar = VIGENTE)) &
+      (vigenciaAlAutorizar = VENCIDA -> X (vigenciaAlAutorizar = VENCIDA))));
+
+LTLSPEC NAME P13_muestra_y_limpia_respuesta :=
+  G (((fase = FINALIZADA) <-> (respuesta != SIN_RESPUESTA)) &
+     (fase = FINALIZADA -> X (fase = ESPERA & respuesta = SIN_RESPUESTA)));
+
+LTLSPEC NAME P14_registro_solo_si_elegible :=
+  G (fase = REGISTRAR_AUTORIZACION ->
+     (!idRegistrado & autorizaciones = 0 & datosIntento != SIN_DATOS &
+      bancoConsultado = OPERATIVO & vigenciaConsultada = VIGENTE));
+
+LTLSPEC NAME P15_recepcion_y_captura :=
+  G (((fase = ESPERA & !enviar) -> X (fase = ESPERA)) &
+     ((fase = ESPERA & enviar) ->
+      X (fase = VALIDAR_ID & datosIntento != SIN_DATOS)));
+
+LTLSPEC NAME P16_ruta_de_observacion_presente :=
+  G ((fase = CONSULTAR_DIRECTORIO & bancoConsultado != AUSENTE) ->
+     X (fase = EVALUAR_ESTADO_BANCO));
+
+LTLSPEC NAME P17_operativo_pasa_a_vigencia :=
+  G ((fase = EVALUAR_ESTADO_BANCO & bancoConsultado = OPERATIVO) ->
+     X (fase = VALIDAR_VIGENCIA));
+
+LTLSPEC NAME P18_captura_inmutable_durante_el_intento :=
+  G (fase != ESPERA ->
+     ((datosIntento = DATOS_A -> X (datosIntento = DATOS_A)) &
+      (datosIntento = DATOS_B -> X (datosIntento = DATOS_B)) &
+      (bancoConsultado = AUSENTE -> X (bancoConsultado = AUSENTE)) &
+      (bancoConsultado = OPERATIVO -> X (bancoConsultado = OPERATIVO)) &
+      (bancoConsultado = MANTENIMIENTO -> X (bancoConsultado = MANTENIMIENTO)) &
+      (bancoConsultado = FUERA_SERVICIO -> X (bancoConsultado = FUERA_SERVICIO)) &
+      (vigenciaConsultada = VIGENTE -> X (vigenciaConsultada = VIGENTE)) &
+      (vigenciaConsultada = VENCIDA -> X (vigenciaConsultada = VENCIDA))));
+
+-- Separadas por campo para mantener pequeno el automata de cada formula LTL.
+LTLSPEC NAME P19_copia_datos_de_entrada :=
+  G ((fase = ESPERA & enviar) ->
+     ((datosEntrada = DATOS_A -> X (datosIntento = DATOS_A)) &
+      (datosEntrada = DATOS_B -> X (datosIntento = DATOS_B))));
+
+LTLSPEC NAME P20_copia_banco_de_entrada :=
+  G ((fase = ESPERA & enviar) ->
+     ((bancoEntrada = AUSENTE -> X (bancoConsultado = AUSENTE)) &
+      (bancoEntrada = OPERATIVO -> X (bancoConsultado = OPERATIVO)) &
+      (bancoEntrada = MANTENIMIENTO -> X (bancoConsultado = MANTENIMIENTO)) &
+      (bancoEntrada = FUERA_SERVICIO -> X (bancoConsultado = FUERA_SERVICIO))));
+
+LTLSPEC NAME P21_copia_vigencia_de_entrada :=
+  G ((fase = ESPERA & enviar) ->
+     ((vigenciaEntrada = VIGENTE -> X (vigenciaConsultada = VIGENTE)) &
+      (vigenciaEntrada = VENCIDA -> X (vigenciaConsultada = VENCIDA))));
+
+-- Consultas existenciales. Evitan aceptar implicaciones que nunca se activan.
+CTLSPEC NAME A01_alcanza_valida :=
+  EF (fase = FINALIZADA & respuesta = VALIDA);
+CTLSPEC NAME A02_alcanza_duplicada :=
+  EF (fase = FINALIZADA & respuesta = DUPLICADA);
+CTLSPEC NAME A03_alcanza_conflicto :=
+  EF (fase = FINALIZADA & respuesta = CONFLICTO);
+CTLSPEC NAME A04_alcanza_sin_directorio :=
+  EF (fase = FINALIZADA & respuesta = SIN_DIRECTORIO);
+CTLSPEC NAME A05_alcanza_banco_no_disponible :=
+  EF (fase = FINALIZADA & respuesta = BANCO_NO_DISPONIBLE);
+CTLSPEC NAME A06_alcanza_desactualizado :=
+  EF (fase = FINALIZADA & respuesta = DESACTUALIZADO);
+
+-- Traza TX001 con el mismo contenido: mantenimiento, recuperacion y reintento.
+CTLSPEC NAME A07_recuperacion_y_reintento :=
+  EF (respuesta = BANCO_NO_DISPONIBLE & datosIntento = DATOS_A &
+      bancoConsultado = MANTENIMIENTO & !idRegistrado & autorizaciones = 0 &
+      EF (respuesta = VALIDA & datosIntento = DATOS_A & autorizaciones = 1 &
+          EF (respuesta = DUPLICADA & datosIntento = DATOS_A & autorizaciones = 1)));
+
+CTLSPEC NAME A08_duplicado_aun_sin_directorio :=
+  EF (respuesta = DUPLICADA & bancoConsultado = AUSENTE);
+
+CTLSPEC NAME A09_conflicto_aun_con_banco_valido :=
+  EF (respuesta = CONFLICTO & datosRegistrados = DATOS_A & datosIntento = DATOS_B &
+      bancoConsultado = OPERATIVO & vigenciaConsultada = VIGENTE);
+
+CTLSPEC NAME A10_prioridad_banco_no_operativo_sobre_vigencia :=
+  EF (respuesta = BANCO_NO_DISPONIBLE & bancoConsultado = FUERA_SERVICIO &
+      vigenciaConsultada = VENCIDA);

@@ -1,0 +1,8 @@
+read_model -i middleware_detallado.smv
+go
+check_fsm
+check_ctlspec
+check_ltlspec
+print_reachable_states
+show_property
+quit

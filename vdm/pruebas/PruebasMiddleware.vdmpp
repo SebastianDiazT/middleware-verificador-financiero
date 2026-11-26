@@ -1,0 +1,438 @@
+class PruebasMiddleware
+
+values
+  private B1 : token = mk_token("BANCO01");
+  private B2 : token = mk_token("BANCO02");
+
+functions
+  private static solicitud : seq of char * real -> MiddlewareVerificador`Solicitud
+  solicitud(tx, m) == mk_MiddlewareVerificador`Solicitud(
+    mk_token(tx), B1, mk_token("USR001"), mk_token("REQ-" ^ tx),
+    mk_token("USR002"), m, <TRANSFERENCIA_INTERBANCARIA>)
+  pre m > 0;
+
+operations
+  public static EjecutarTodas : () ==> seq of bool
+  EjecutarTodas() == return
+    [AceptacionDecimal(),
+     DuplicadoExacto(),
+     ConflictoMonto(),
+     ConflictoReceptor(),
+     IdGlobalOtroUsuario(),
+     ConflictoBanco(),
+     ConflictoModalidad(),
+     ConflictoSolicitud(),
+     Mantenimiento(),
+     FueraServicio(),
+     BancoSinRegistro(),
+     EstadoVencido(),
+     LimiteVigencia(),
+     ActualizacionTrasVencimiento(),
+     RecuperacionBanco(),
+     CambioBancoTrasAceptar(),
+     HistorialOrdenadoSinDuplicados(),
+     RechazoNoConsumeId(),
+     RegistroRechazadoValido(),
+     ObjetoBanco(),
+     DirectorioVariosBancos(),
+     ConsultaDuplicado(),
+     ModalidadYapeo(),
+     EvidenciaHistoricaConTiempo(),
+     EstadoInicial(),
+     TresReintentos(),
+     EstadoNoOperativoAntesDeVigencia(),
+     DuplicadoAntesDeVigencia(),
+     VigenciaIndependientePorBanco()];
+
+  public static AceptacionDecimal : () ==> bool
+  AceptacionDecimal() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    r1 := g.procesar(s);
+    return r1 = <VALIDA>
+      and g.verIdsProcesados() = {mk_token("TX001")}
+      and g.verHistorial() = [mk_token("TX001")]
+      and g.verEstados()(mk_token("TX001")) = <AUTORIZADA>
+      and g.verAutorizadas()(1).registro = mk_MiddlewareVerificador`RegistroOperacion(
+        mk_token("TX001"), B1, 10.50, <OPERATIVO>, <AUTORIZADA>)
+  );
+
+  public static DuplicadoExacto : () ==> bool
+  DuplicadoExacto() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    dcl r2 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    r1 := g.procesar(s); r2 := g.procesar(s);
+    return r1 = <VALIDA> and r2 = <DUPLICADA>
+      and len g.verAutorizadas() = 1 and len g.verHistorial() = 1
+      and g.verEstados()(s.idTransaccion) = <AUTORIZADA>
+  );
+
+  public static ConflictoMonto : () ==> bool
+  ConflictoMonto() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    dcl r2 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    r1 := g.procesar(s); r2 := g.procesar(mu(s, monto |-> 20.75));
+    return r1 = <VALIDA> and r2 = <CONFLICTO>
+      and g.verSolicitudes()(s.idTransaccion) = s
+      and len g.verAutorizadas() = 1
+      and g.verEstados()(s.idTransaccion) = <AUTORIZADA>
+  );
+
+  public static ConflictoReceptor : () ==> bool
+  ConflictoReceptor() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    dcl r2 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    r1 := g.procesar(s); r2 := g.procesar(mu(s, idReceptor |-> mk_token("USR003")));
+    return r1 = <VALIDA> and r2 = <CONFLICTO>
+      and g.verSolicitudes()(s.idTransaccion) = s
+      and len g.verAutorizadas() = 1
+      and g.verEstados()(s.idTransaccion) = <AUTORIZADA>
+  );
+
+  public static IdGlobalOtroUsuario : () ==> bool
+  IdGlobalOtroUsuario() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    dcl r2 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    r1 := g.procesar(s); r2 := g.procesar(mu(s, idUsuario |-> mk_token("USR003")));
+    return r1 = <VALIDA> and r2 = <CONFLICTO>
+      and g.verSolicitudes()(s.idTransaccion) = s
+      and len g.verAutorizadas() = 1
+      and g.verEstados()(s.idTransaccion) = <AUTORIZADA>
+  );
+
+  public static ConflictoBanco : () ==> bool
+  ConflictoBanco() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    dcl r2 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    r1 := g.procesar(s); r2 := g.procesar(mu(s, idBancoDestino |-> B2));
+    return r1 = <VALIDA> and r2 = <CONFLICTO>
+      and g.verSolicitudes()(s.idTransaccion) = s
+      and len g.verAutorizadas() = 1
+      and g.verEstados()(s.idTransaccion) = <AUTORIZADA>
+  );
+
+  public static ConflictoModalidad : () ==> bool
+  ConflictoModalidad() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    dcl r2 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    r1 := g.procesar(s); r2 := g.procesar(mu(s, tipoOperacion |-> <YAPEO>));
+    return r1 = <VALIDA> and r2 = <CONFLICTO>
+      and g.verSolicitudes()(s.idTransaccion) = s
+      and len g.verAutorizadas() = 1
+      and g.verEstados()(s.idTransaccion) = <AUTORIZADA>
+  );
+
+  public static ConflictoSolicitud : () ==> bool
+  ConflictoSolicitud() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    dcl r2 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    r1 := g.procesar(s); r2 := g.procesar(mu(s, idSolicitud |-> mk_token("REQ-OTRA")));
+    return r1 = <VALIDA> and r2 = <CONFLICTO>
+      and g.verSolicitudes()(s.idTransaccion) = s
+      and len g.verAutorizadas() = 1
+      and g.verEstados()(s.idTransaccion) = <AUTORIZADA>
+  );
+
+  public static Mantenimiento : () ==> bool
+  Mantenimiento() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <MANTENIMIENTO>);
+    r1 := g.procesar(s);
+    return r1 = <BANCO_NO_DISPONIBLE>
+      and g.verHistorial() = [] and g.verIdsProcesados() = {}
+      and g.verAutorizadas() = [] and g.verSolicitudes() = {|->}
+      and g.verEstados()(s.idTransaccion) = <RECHAZADA>
+  );
+
+  public static FueraServicio : () ==> bool
+  FueraServicio() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <FUERA_SERVICIO>);
+    r1 := g.procesar(s);
+    return r1 = <BANCO_NO_DISPONIBLE>
+      and g.verHistorial() = [] and g.verIdsProcesados() = {}
+      and g.verAutorizadas() = [] and g.verSolicitudes() = {|->}
+      and g.verEstados()(s.idTransaccion) = <RECHAZADA>
+  );
+
+  public static BancoSinRegistro : () ==> bool
+  BancoSinRegistro() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    r1 := g.procesar(s);
+    return r1 = <SIN_DIRECTORIO> and g.verHistorial() = []
+      and g.verAutorizadas() = [] and not g.verificarBanco(B1)
+      and g.verEstados()(s.idTransaccion) = <RECHAZADA>
+  );
+
+  public static EstadoVencido : () ==> bool
+  EstadoVencido() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    g.avanzarTiempo(MiddlewareVerificador`MAX_EDAD + 1);
+    r1 := g.procesar(s);
+    return r1 = <DESACTUALIZADO> and g.verHistorial() = []
+      and g.verAutorizadas() = [] and not g.verificarBanco(B1)
+  );
+
+  public static LimiteVigencia : () ==> bool
+  LimiteVigencia() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    g.avanzarTiempo(MiddlewareVerificador`MAX_EDAD);
+    r1 := g.procesar(s);
+    return r1 = <VALIDA> and g.verificarBanco(B1)
+      and g.verAutorizadas()(1).instante = MiddlewareVerificador`MAX_EDAD
+  );
+
+  public static ActualizacionTrasVencimiento : () ==> bool
+  ActualizacionTrasVencimiento() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    dcl r2 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    g.avanzarTiempo(MiddlewareVerificador`MAX_EDAD + 1);
+    r1 := g.procesar(s);
+    g.actualizarBanco(B1, <OPERATIVO>); r2 := g.procesar(s);
+    return r1 = <DESACTUALIZADO> and r2 = <VALIDA>
+      and len g.verAutorizadas() = 1
+      and g.verAutorizadas()(1).observadoEn = g.verTiempo()
+  );
+
+  public static RecuperacionBanco : () ==> bool
+  RecuperacionBanco() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    dcl r2 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <MANTENIMIENTO>);
+    r1 := g.procesar(s);
+    g.actualizarBanco(B1, <OPERATIVO>); r2 := g.procesar(s);
+    return r1 = <BANCO_NO_DISPONIBLE> and r2 = <VALIDA>
+      and len g.verAutorizadas() = 1
+      and g.verEstados()(s.idTransaccion) = <AUTORIZADA>
+  );
+
+  public static CambioBancoTrasAceptar : () ==> bool
+  CambioBancoTrasAceptar() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    dcl r2 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>); r1 := g.procesar(s);
+    g.actualizarBanco(B1, <MANTENIMIENTO>); r2 := g.procesar(s);
+    return r1 = <VALIDA> and r2 = <DUPLICADA>
+      and g.verAutorizadas()(1).registro.estadoBanco = <OPERATIVO>
+      and g.verBanco(B1).estado = <MANTENIMIENTO>
+      and g.verEstados()(s.idTransaccion) = <AUTORIZADA>
+  );
+
+  public static HistorialOrdenadoSinDuplicados : () ==> bool
+  HistorialOrdenadoSinDuplicados() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    dcl r2 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    r1 := g.procesar(s); r2 := g.procesar(solicitud("TX002", 25.25));
+    if r1 <> <VALIDA> or r2 <> <VALIDA> then return false;
+    r2 := g.procesar(s);
+    return r2 = <DUPLICADA>
+      and g.verHistorial() = [mk_token("TX001"), mk_token("TX002")]
+      and g.verIdsProcesados() = {mk_token("TX001"), mk_token("TX002")}
+      and len g.verAutorizadas() = 2
+  );
+
+  public static RechazoNoConsumeId : () ==> bool
+  RechazoNoConsumeId() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    dcl r2 : MiddlewareVerificador`ResultadoVerificacion;
+    r1 := g.procesar(s); g.registrarBanco(B1, <OPERATIVO>);
+    r2 := g.procesar(s);
+    return r1 = <SIN_DIRECTORIO> and r2 = <VALIDA>
+      and g.verHistorial() = [s.idTransaccion]
+  );
+
+  public static RegistroRechazadoValido : () ==> bool
+  RegistroRechazadoValido() == (
+    dcl r : MiddlewareVerificador`RegistroOperacion :=
+      mk_MiddlewareVerificador`RegistroOperacion(
+        mk_token("TX001"), B1, 10.50, <MANTENIMIENTO>, <RECHAZADA>);
+    return r.resultado = <RECHAZADA> and r.monto = 10.50
+  );
+
+  public static ObjetoBanco : () ==> bool
+  ObjetoBanco() == (
+    dcl b : Banco := new Banco(B1, <MANTENIMIENTO>, 0);
+    dcl anterior : Banco`Observacion := b.obtenerObservacion();
+    b.actualizarEstado(<OPERATIVO>, 3);
+    return b.obtenerId() = B1 and b.obtenerEstado() = <OPERATIVO>
+      and b.obtenerObservacion().instante = 3
+      and anterior = mk_Banco`Observacion(<MANTENIMIENTO>, 0)
+  );
+
+  public static DirectorioVariosBancos : () ==> bool
+  DirectorioVariosBancos() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    dcl r2 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    g.registrarBanco(B2, <MANTENIMIENTO>);
+    r1 := g.procesar(s);
+    r2 := g.procesar(mu(solicitud("TX002", 5), idBancoDestino |-> B2));
+    g.actualizarBanco(B2, <FUERA_SERVICIO>);
+    return r1 = <VALIDA> and r2 = <BANCO_NO_DISPONIBLE>
+      and g.verBancos() = {B1, B2}
+      and g.verBanco(B1).estado = <OPERATIVO>
+      and g.verBanco(B2).estado = <FUERA_SERVICIO>
+      and len g.verAutorizadas() = 1
+  );
+
+  public static ConsultaDuplicado : () ==> bool
+  ConsultaDuplicado() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    if g.verificarDuplicado(s.idTransaccion) then return false;
+    r1 := g.procesar(s);
+    return r1 = <VALIDA> and g.verificarDuplicado(s.idTransaccion)
+      and not g.verificarDuplicado(mk_token("TX999"))
+  );
+
+  public static ModalidadYapeo : () ==> bool
+  ModalidadYapeo() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    r1 := g.procesar(mu(s, tipoOperacion |-> <YAPEO>));
+    return r1 = <VALIDA>
+      and g.verSolicitudes()(s.idTransaccion).tipoOperacion = <YAPEO>
+  );
+
+  public static EvidenciaHistoricaConTiempo : () ==> bool
+  EvidenciaHistoricaConTiempo() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>); r1 := g.procesar(s);
+    g.avanzarTiempo(100); g.actualizarBanco(B1, <FUERA_SERVICIO>);
+    return r1 = <VALIDA>
+      and g.verAutorizadas()(1).observadoEn = 0
+      and g.verAutorizadas()(1).instante = 0
+      and g.verAutorizadas()(1).registro.estadoBanco = <OPERATIVO>
+  );
+
+  public static EstadoInicial : () ==> bool
+  EstadoInicial() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    return g.verIdsProcesados() = {} and g.verHistorial() = []
+      and g.verBancos() = {} and g.verEstados() = {|->}
+      and g.verSolicitudes() = {|->} and g.verAutorizadas() = []
+      and g.verTiempo() = 0
+  );
+
+  public static TresReintentos : () ==> bool
+  TresReintentos() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    dcl r2 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    r1 := g.procesar(s); r2 := g.procesar(s);
+    if r1 <> <VALIDA> or r2 <> <DUPLICADA> then return false;
+    r2 := g.procesar(s);
+    return r2 = <DUPLICADA> and card g.verIdsProcesados() = 1
+      and len g.verHistorial() = 1 and len g.verAutorizadas() = 1
+  );
+
+  public static EstadoNoOperativoAntesDeVigencia : () ==> bool
+  EstadoNoOperativoAntesDeVigencia() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <FUERA_SERVICIO>);
+    g.avanzarTiempo(6);
+    r := g.procesar(s);
+    return r = <BANCO_NO_DISPONIBLE>
+      and g.verEstados()(s.idTransaccion) = <RECHAZADA>
+      and g.verIdsProcesados() = {} and g.verHistorial() = []
+      and g.verSolicitudes() = {|->} and g.verAutorizadas() = []
+  );
+
+  public static DuplicadoAntesDeVigencia : () ==> bool
+  DuplicadoAntesDeVigencia() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl r : MiddlewareVerificador`ResultadoVerificacion;
+    dcl a : seq of MiddlewareVerificador`Autorizacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    r := g.procesar(s);
+    if r <> <VALIDA> then return false;
+    a := g.verAutorizadas();
+    g.avanzarTiempo(6);
+    r := g.procesar(s);
+    return r = <DUPLICADA> and g.verAutorizadas() = a
+      and g.verHistorial() = [s.idTransaccion]
+      and g.verEstados()(s.idTransaccion) = <AUTORIZADA>
+  );
+
+  public static VigenciaIndependientePorBanco : () ==> bool
+  VigenciaIndependientePorBanco() == (
+    dcl g : MiddlewareVerificador := new MiddlewareVerificador();
+    dcl s1 : MiddlewareVerificador`Solicitud := solicitud("TX001", 10.50);
+    dcl s2 : MiddlewareVerificador`Solicitud :=
+      mu(solicitud("TX002", 20), idBancoDestino |-> B2);
+    dcl r1 : MiddlewareVerificador`ResultadoVerificacion;
+    dcl r2 : MiddlewareVerificador`ResultadoVerificacion;
+    g.registrarBanco(B1, <OPERATIVO>);
+    g.registrarBanco(B2, <OPERATIVO>);
+    g.avanzarTiempo(6);
+    g.actualizarBanco(B2, <OPERATIVO>);
+    r1 := g.procesar(s1); r2 := g.procesar(s2);
+    return r1 = <DESACTUALIZADO> and r2 = <VALIDA>
+      and g.verEstados()(s1.idTransaccion) = <RECHAZADA>
+      and g.verEstados()(s2.idTransaccion) = <AUTORIZADA>
+      and g.verHistorial() = [s2.idTransaccion]
+      and g.verAutorizadas()(1).observadoEn = 6
+      and g.verBanco(B1).instante = 0 and g.verBanco(B2).instante = 6
+  );
+
+end PruebasMiddleware

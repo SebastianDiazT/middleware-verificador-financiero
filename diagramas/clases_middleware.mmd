@@ -1,0 +1,29 @@
+classDiagram
+    direction LR
+    class MiddlewareVerificador {
+      -set~token~ idsProcesados
+      -seq~token~ historial
+      -map directorio
+      -map solicitudes
+      -seq autorizadas
+      -map estados
+      -nat ahora
+      +procesar(Solicitud) ResultadoVerificacion
+      +registrarBanco(token, EstadoBanco)
+      +actualizarBanco(token, EstadoBanco)
+      +verificarDuplicado(token) bool
+      +verificarBanco(token) bool
+      +avanzarTiempo(nat1)
+      -registrarId(Solicitud, Observacion)
+    }
+    class Banco {
+      -token idBanco
+      -EstadoBanco estado
+      -nat instante
+      +obtenerId() token
+      +obtenerEstado() EstadoBanco
+      +obtenerObservacion() Observacion
+      +actualizarEstado(EstadoBanco, nat)
+    }
+    MiddlewareVerificador "1" *-- "0..*" Banco : directorio de token a Banco
+    note for MiddlewareVerificador "idsProcesados = elems historial<br/>len historial = card idsProcesados"

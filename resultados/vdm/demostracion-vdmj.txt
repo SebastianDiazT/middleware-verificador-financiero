@@ -1,0 +1,8 @@
+Parsed 3 classes in 0.124 secs. No syntax errors
+Type checked 3 classes in 0.312 secs. No type errors
+WARNING: Final field classDefinition in class com.fujitsu.vdmj.po.statements.POAssignmentStatement has been mutated reflectively by class com.fujitsu.vdmj.mapper.ClassMapper in unnamed module @732f29af (vdmj-4.7.0.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+Initialized 3 classes in 0.358 secs. No init errors
+[mk_Paso("Sin banco en el directorio", 0, <SIN_DIRECTORIO>, <RECHAZADA>, 0, nil), mk_Paso("Banco en mantenimiento", 0, <BANCO_NO_DISPONIBLE>, <RECHAZADA>, 0, nil), mk_Paso("Observacion con edad 6", 6, <DESACTUALIZADO>, <RECHAZADA>, 0, nil), mk_Paso("Observacion con edad 5", 11, <VALIDA>, <AUTORIZADA>, 1, 6), mk_Paso("Reintento exacto con dato vencido", 12, <DUPLICADA>, <AUTORIZADA>, 1, 6), mk_Paso("Mismo ID con otro banco ausente", 12, <CONFLICTO>, <AUTORIZADA>, 1, 6)]
+Bye

@@ -1,0 +1,42 @@
+[
+  {
+    "nombre": "Registro con monto cero",
+    "expresion": "mk_MiddlewareVerificador`RegistroOperacion(mk_token(\"TX001\"), mk_token(\"BANCO01\"), 0, <OPERATIVO>, <AUTORIZADA>)",
+    "errorEsperado": "Error 4079: Type invariant violated by mk_RegistroOperacion arguments"
+  },
+  {
+    "nombre": "Registro con monto negativo",
+    "expresion": "mk_MiddlewareVerificador`RegistroOperacion(mk_token(\"TX001\"), mk_token(\"BANCO01\"), -10, <OPERATIVO>, <AUTORIZADA>)",
+    "errorEsperado": "Error 4079: Type invariant violated by mk_RegistroOperacion arguments"
+  },
+  {
+    "nombre": "Registro autorizado en mantenimiento",
+    "expresion": "mk_MiddlewareVerificador`RegistroOperacion(mk_token(\"TX001\"), mk_token(\"BANCO01\"), 10.50, <MANTENIMIENTO>, <AUTORIZADA>)",
+    "errorEsperado": "Error 4079: Type invariant violated by mk_RegistroOperacion arguments"
+  },
+  {
+    "nombre": "Registro autorizado fuera de servicio",
+    "expresion": "mk_MiddlewareVerificador`RegistroOperacion(mk_token(\"TX001\"), mk_token(\"BANCO01\"), 10.50, <FUERA_SERVICIO>, <AUTORIZADA>)",
+    "errorEsperado": "Error 4079: Type invariant violated by mk_RegistroOperacion arguments"
+  },
+  {
+    "nombre": "Solicitud con monto cero",
+    "expresion": "mk_MiddlewareVerificador`Solicitud(mk_token(\"TX001\"), mk_token(\"BANCO01\"), mk_token(\"USR001\"), mk_token(\"REQ001\"), mk_token(\"USR002\"), 0, <YAPEO>)",
+    "errorEsperado": "Error 4079: Type invariant violated by mk_Solicitud arguments"
+  },
+  {
+    "nombre": "Solicitud con monto negativo",
+    "expresion": "mk_MiddlewareVerificador`Solicitud(mk_token(\"TX001\"), mk_token(\"BANCO01\"), mk_token(\"USR001\"), mk_token(\"REQ001\"), mk_token(\"USR002\"), -1, <TRANSFERENCIA_INTERBANCARIA>)",
+    "errorEsperado": "Error 4079: Type invariant violated by mk_Solicitud arguments"
+  },
+  {
+    "nombre": "Reloj del banco retrocede",
+    "expresion": "new Banco(mk_token(\"BANCO01\"), <OPERATIVO>, 5).actualizarEstado(<MANTENIMIENTO>, 4)",
+    "errorEsperado": "Error 4071: Precondition failure: pre_actualizarEstado"
+  },
+  {
+    "nombre": "Actualizar banco no registrado",
+    "expresion": "new MiddlewareVerificador().actualizarBanco(mk_token(\"BANCO01\"), <OPERATIVO>)",
+    "errorEsperado": "Error 4071: Precondition failure: pre_actualizarBanco"
+  }
+]

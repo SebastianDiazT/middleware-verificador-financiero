@@ -1,0 +1,119 @@
+*** This is NuSMV 2.7.1 (compiled on Mon Sep 29 16:07:59 2025)
+*** Enabled addons are: compass
+*** For more information on NuSMV see <http://nusmv.fbk.eu>
+*** or email to <nusmv-users@list.fbk.eu>.
+*** Please report bugs to <Please report bugs to <nusmv-users@fbk.eu>>
+
+*** Copyright (c) 2010-2025, Fondazione Bruno Kessler
+
+*** This version of NuSMV is linked to the CUDD library version 2.4.1
+*** Copyright (c) 1995-2004, Regents of the University of Colorado
+
+*** This version of NuSMV is linked to the MiniSat SAT solver. 
+*** See http://minisat.se/MiniSat.html
+*** Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
+*** Copyright (c) 2007-2010, Niklas Sorensson
+
+
+##########################################################
+The transition relation is total: No deadlock state exists
+##########################################################
+-- specification EF (fase = FINALIZADA & respuesta = VALIDA)  is true
+-- specification EF (fase = FINALIZADA & respuesta = DUPLICADA)  is true
+-- specification EF (fase = FINALIZADA & respuesta = CONFLICTO)  is true
+-- specification EF (fase = FINALIZADA & respuesta = SIN_DIRECTORIO)  is true
+-- specification EF (fase = FINALIZADA & respuesta = BANCO_NO_DISPONIBLE)  is true
+-- specification EF (fase = FINALIZADA & respuesta = DESACTUALIZADO)  is true
+-- specification EF (respuesta = DUPLICADA & bancoConsultado = AUSENTE)  is true
+-- specification EF ((((respuesta = CONFLICTO & datosRegistrados = DATOS_A) & datosIntento = DATOS_B) & bancoConsultado = OPERATIVO) & vigenciaConsultada = VIGENTE)  is true
+-- specification EF ((respuesta = BANCO_NO_DISPONIBLE & bancoConsultado = FUERA_SERVICIO) & vigenciaConsultada = VENCIDA)  is true
+-- specification EF (((((respuesta = BANCO_NO_DISPONIBLE & datosIntento = DATOS_A) & bancoConsultado = MANTENIMIENTO) & !idRegistrado) & autorizaciones = 0) & EF (((respuesta = VALIDA & datosIntento = DATOS_A) & autorizaciones = 1) & EF ((respuesta = DUPLICADA & datosIntento = DATOS_A) & autorizaciones = 1)))  is true
+-- specification  G (fase = VALIDAR_ID ->  F fase = FINALIZADA)  is true
+-- specification  G ((fase = VALIDAR_ID & idRegistrado) ->  X fase = COMPARAR_SOLICITUD)  is true
+-- specification  G ((fase = VALIDAR_ID & !idRegistrado) ->  X fase = CONSULTAR_DIRECTORIO)  is true
+-- specification  G (((fase = ESPERA & !enviar) ->  X fase = ESPERA) & ((fase = ESPERA & enviar) ->  X (fase = VALIDAR_ID & datosIntento != SIN_DATOS)))  is true
+-- specification  G ((fase = CONSULTAR_DIRECTORIO & bancoConsultado != AUSENTE) ->  X fase = EVALUAR_ESTADO_BANCO)  is true
+-- specification  G ((fase = EVALUAR_ESTADO_BANCO & bancoConsultado = OPERATIVO) ->  X fase = VALIDAR_VIGENCIA)  is true
+-- specification  G (fase != ESPERA -> ((((((((datosIntento = DATOS_A ->  X datosIntento = DATOS_A) & (datosIntento = DATOS_B ->  X datosIntento = DATOS_B)) & (bancoConsultado = AUSENTE ->  X bancoConsultado = AUSENTE)) & (bancoConsultado = OPERATIVO ->  X bancoConsultado = OPERATIVO)) & (bancoConsultado = MANTENIMIENTO ->  X bancoConsultado = MANTENIMIENTO)) & (bancoConsultado = FUERA_SERVICIO ->  X bancoConsultado = FUERA_SERVICIO)) & (vigenciaConsultada = VIGENTE ->  X vigenciaConsultada = VIGENTE)) & (vigenciaConsultada = VENCIDA ->  X vigenciaConsultada = VENCIDA)))  is true
+-- specification  G ((fase = ESPERA & enviar) -> ((datosEntrada = DATOS_A ->  X datosIntento = DATOS_A) & (datosEntrada = DATOS_B ->  X datosIntento = DATOS_B)))  is true
+-- specification  G ((fase = ESPERA & enviar) -> ((((bancoEntrada = AUSENTE ->  X bancoConsultado = AUSENTE) & (bancoEntrada = OPERATIVO ->  X bancoConsultado = OPERATIVO)) & (bancoEntrada = MANTENIMIENTO ->  X bancoConsultado = MANTENIMIENTO)) & (bancoEntrada = FUERA_SERVICIO ->  X bancoConsultado = FUERA_SERVICIO)))  is true
+-- specification  G ((fase = ESPERA & enviar) -> ((vigenciaEntrada = VIGENTE ->  X vigenciaConsultada = VIGENTE) & (vigenciaEntrada = VENCIDA ->  X vigenciaConsultada = VENCIDA)))  is true
+-- specification  G autorizaciones <= 1  is true
+-- specification  G ((fase = COMPARAR_SOLICITUD & datosIntento = datosRegistrados) ->  X (fase = FINALIZADA & respuesta = DUPLICADA))  is true
+-- specification  G ((fase = COMPARAR_SOLICITUD & datosIntento != datosRegistrados) ->  X (fase = FINALIZADA & respuesta = CONFLICTO))  is true
+-- specification  G ((fase = CONSULTAR_DIRECTORIO & bancoConsultado = AUSENTE) ->  X (fase = FINALIZADA & respuesta = SIN_DIRECTORIO))  is true
+-- specification  G ((fase = EVALUAR_ESTADO_BANCO & (bancoConsultado = MANTENIMIENTO | bancoConsultado = FUERA_SERVICIO)) ->  X (fase = FINALIZADA & respuesta = BANCO_NO_DISPONIBLE))  is true
+-- specification  G ((fase = VALIDAR_VIGENCIA & vigenciaConsultada = VENCIDA) ->  X (fase = FINALIZADA & respuesta = DESACTUALIZADO))  is true
+-- specification  G ((fase = VALIDAR_VIGENCIA & vigenciaConsultada = VIGENTE) ->  X (fase = REGISTRAR_AUTORIZACION &  X (fase = FINALIZADA & respuesta = VALIDA)))  is true
+-- specification  G ((fase = FINALIZADA <-> respuesta != SIN_RESPUESTA) & (fase = FINALIZADA ->  X (fase = ESPERA & respuesta = SIN_RESPUESTA)))  is true
+-- specification  G (fase = REGISTRAR_AUTORIZACION -> ((((!idRegistrado & autorizaciones = 0) & datosIntento != SIN_DATOS) & bancoConsultado = OPERATIVO) & vigenciaConsultada = VIGENTE))  is true
+-- specification  G (fase != REGISTRAR_AUTORIZACION -> (((((((((((((((idRegistrado <->  X idRegistrado) & (datosRegistrados = SIN_DATOS ->  X datosRegistrados = SIN_DATOS)) & (datosRegistrados = DATOS_A ->  X datosRegistrados = DATOS_A)) & (datosRegistrados = DATOS_B ->  X datosRegistrados = DATOS_B)) & (autorizaciones = 0 ->  X autorizaciones = 0)) & (autorizaciones = 1 ->  X autorizaciones = 1)) & (autorizaciones = 2 ->  X autorizaciones = 2)) & (bancoAlAutorizar = SIN_EVIDENCIA ->  X bancoAlAutorizar = SIN_EVIDENCIA)) & (bancoAlAutorizar = AUSENTE ->  X bancoAlAutorizar = AUSENTE)) & (bancoAlAutorizar = OPERATIVO ->  X bancoAlAutorizar = OPERATIVO)) & (bancoAlAutorizar = MANTENIMIENTO ->  X bancoAlAutorizar = MANTENIMIENTO)) & (bancoAlAutorizar = FUERA_SERVICIO ->  X bancoAlAutorizar = FUERA_SERVICIO)) & (vigenciaAlAutorizar = SIN_EVIDENCIA ->  X vigenciaAlAutorizar = SIN_EVIDENCIA)) & (vigenciaAlAutorizar = VIGENTE ->  X vigenciaAlAutorizar = VIGENTE)) & (vigenciaAlAutorizar = VENCIDA ->  X vigenciaAlAutorizar = VENCIDA)))  is true
+-- specification  G (respuesta = VALIDA -> ((((((idRegistrado & autorizaciones = 1) & datosRegistrados = datosIntento) & bancoConsultado = OPERATIVO) & vigenciaConsultada = VIGENTE) & bancoAlAutorizar = bancoConsultado) & vigenciaAlAutorizar = vigenciaConsultada))  is true
+######################################################################
+system diameter: 12
+reachable states: 209 (2^7.70736) out of 362880 (2^18.4691)
+######################################################################
+**** PROPERTY LIST [ Type, Status, Counter-example Number, Name ] ****
+--------------------------  PROPERTY LIST  -------------------------
+000 :EF (fase = FINALIZADA & respuesta = VALIDA) 
+  [CTL            True           N/A    A01_alcanza_valida]
+001 :EF (fase = FINALIZADA & respuesta = DUPLICADA) 
+  [CTL            True           N/A    A02_alcanza_duplicada]
+002 :EF (fase = FINALIZADA & respuesta = CONFLICTO) 
+  [CTL            True           N/A    A03_alcanza_conflicto]
+003 :EF (fase = FINALIZADA & respuesta = SIN_DIRECTORIO) 
+  [CTL            True           N/A    A04_alcanza_sin_directorio]
+004 :EF (fase = FINALIZADA & respuesta = BANCO_NO_DISPONIBLE) 
+  [CTL            True           N/A    A05_alcanza_banco_no_disponible]
+005 :EF (fase = FINALIZADA & respuesta = DESACTUALIZADO) 
+  [CTL            True           N/A    A06_alcanza_desactualizado]
+006 :EF (((((respuesta = BANCO_NO_DISPONIBLE & datosIntento = DATOS_A) & bancoConsultado = MANTENIMIENTO) & !idRegistrado) & autorizaciones = 0) & EF (((respuesta = VALIDA & datosIntento = DATOS_A) & autorizaciones = 1) & EF ((respuesta = DUPLICADA & datosIntento = DATOS_A) & autorizaciones = 1))) 
+  [CTL            True           N/A    A07_recuperacion_y_reintento]
+007 :EF (respuesta = DUPLICADA & bancoConsultado = AUSENTE) 
+  [CTL            True           N/A    A08_duplicado_aun_sin_directorio]
+008 :EF ((((respuesta = CONFLICTO & datosRegistrados = DATOS_A) & datosIntento = DATOS_B) & bancoConsultado = OPERATIVO) & vigenciaConsultada = VIGENTE) 
+  [CTL            True           N/A    A09_conflicto_aun_con_banco_valido]
+009 :EF ((respuesta = BANCO_NO_DISPONIBLE & bancoConsultado = FUERA_SERVICIO) & vigenciaConsultada = VENCIDA) 
+  [CTL            True           N/A    A10_prioridad_banco_no_operativo_sobre_vigencia]
+010 : G autorizaciones <= 1 
+  [LTL            True           N/A    P01_unicidad]
+011 : G (respuesta = VALIDA -> ((((((idRegistrado & autorizaciones = 1) & datosRegistrados = datosIntento) & bancoConsultado = OPERATIVO) & vigenciaConsultada = VIGENTE) & bancoAlAutorizar = bancoConsultado) & vigenciaAlAutorizar = vigenciaConsultada)) 
+  [LTL            True           N/A    P02_evidencia_de_autorizacion]
+012 : G (fase = VALIDAR_ID ->  F fase = FINALIZADA) 
+  [LTL            True           N/A    P03_respuesta_eventual]
+013 : G ((fase = VALIDAR_ID & idRegistrado) ->  X fase = COMPARAR_SOLICITUD) 
+  [LTL            True           N/A    P04_prioridad_del_id]
+014 : G ((fase = VALIDAR_ID & !idRegistrado) ->  X fase = CONSULTAR_DIRECTORIO) 
+  [LTL            True           N/A    P05_id_libre_consulta_directorio]
+015 : G ((fase = COMPARAR_SOLICITUD & datosIntento = datosRegistrados) ->  X (fase = FINALIZADA & respuesta = DUPLICADA)) 
+  [LTL            True           N/A    P06_duplicado_exacto]
+016 : G ((fase = COMPARAR_SOLICITUD & datosIntento != datosRegistrados) ->  X (fase = FINALIZADA & respuesta = CONFLICTO)) 
+  [LTL            True           N/A    P07_conflicto_de_datos]
+017 : G ((fase = CONSULTAR_DIRECTORIO & bancoConsultado = AUSENTE) ->  X (fase = FINALIZADA & respuesta = SIN_DIRECTORIO)) 
+  [LTL            True           N/A    P08_directorio_ausente]
+018 : G ((fase = EVALUAR_ESTADO_BANCO & (bancoConsultado = MANTENIMIENTO | bancoConsultado = FUERA_SERVICIO)) ->  X (fase = FINALIZADA & respuesta = BANCO_NO_DISPONIBLE)) 
+  [LTL            True           N/A    P09_prioridad_de_estado_bancario]
+019 : G ((fase = VALIDAR_VIGENCIA & vigenciaConsultada = VENCIDA) ->  X (fase = FINALIZADA & respuesta = DESACTUALIZADO)) 
+  [LTL            True           N/A    P10_observacion_vencida]
+020 : G ((fase = VALIDAR_VIGENCIA & vigenciaConsultada = VIGENTE) ->  X (fase = REGISTRAR_AUTORIZACION &  X (fase = FINALIZADA & respuesta = VALIDA))) 
+  [LTL            True           N/A    P11_vigencia_habilita_registro]
+021 : G (fase != REGISTRAR_AUTORIZACION -> (((((((((((((((idRegistrado <->  X idRegistrado) & (datosRegistrados = SIN_DATOS ->  X datosRegistrados = SIN_DATOS)) & (datosRegistrados = DATOS_A ->  X datosRegistrados = DATOS_A)) & (datosRegistrados = DATOS_B ->  X datosRegistrados = DATOS_B)) & (autorizaciones = 0 ->  X autorizaciones = 0)) & (autorizaciones = 1 ->  X autorizaciones = 1)) & (autorizaciones = 2 ->  X autorizaciones = 2)) & (bancoAlAutorizar = SIN_EVIDENCIA ->  X bancoAlAutorizar = SIN_EVIDENCIA)) & (bancoAlAutorizar = AUSENTE ->  X bancoAlAutorizar = AUSENTE)) & (bancoAlAutorizar = OPERATIVO ->  X bancoAlAutorizar = OPERATIVO)) & (bancoAlAutorizar = MANTENIMIENTO ->  X bancoAlAutorizar = MANTENIMIENTO)) & (bancoAlAutorizar = FUERA_SERVICIO ->  X bancoAlAutorizar = FUERA_SERVICIO)) & (vigenciaAlAutorizar = SIN_EVIDENCIA ->  X vigenciaAlAutorizar = SIN_EVIDENCIA)) & (vigenciaAlAutorizar = VIGENTE ->  X vigenciaAlAutorizar = VIGENTE)) & (vigenciaAlAutorizar = VENCIDA ->  X vigenciaAlAutorizar = VENCIDA))) 
+  [LTL            True           N/A    P12_sin_efecto_fuera_del_registro]
+022 : G ((fase = FINALIZADA <-> respuesta != SIN_RESPUESTA) & (fase = FINALIZADA ->  X (fase = ESPERA & respuesta = SIN_RESPUESTA))) 
+  [LTL            True           N/A    P13_muestra_y_limpia_respuesta]
+023 : G (fase = REGISTRAR_AUTORIZACION -> ((((!idRegistrado & autorizaciones = 0) & datosIntento != SIN_DATOS) & bancoConsultado = OPERATIVO) & vigenciaConsultada = VIGENTE)) 
+  [LTL            True           N/A    P14_registro_solo_si_elegible]
+024 : G (((fase = ESPERA & !enviar) ->  X fase = ESPERA) & ((fase = ESPERA & enviar) ->  X (fase = VALIDAR_ID & datosIntento != SIN_DATOS))) 
+  [LTL            True           N/A    P15_recepcion_y_captura]
+025 : G ((fase = CONSULTAR_DIRECTORIO & bancoConsultado != AUSENTE) ->  X fase = EVALUAR_ESTADO_BANCO) 
+  [LTL            True           N/A    P16_ruta_de_observacion_presente]
+026 : G ((fase = EVALUAR_ESTADO_BANCO & bancoConsultado = OPERATIVO) ->  X fase = VALIDAR_VIGENCIA) 
+  [LTL            True           N/A    P17_operativo_pasa_a_vigencia]
+027 : G (fase != ESPERA -> ((((((((datosIntento = DATOS_A ->  X datosIntento = DATOS_A) & (datosIntento = DATOS_B ->  X datosIntento = DATOS_B)) & (bancoConsultado = AUSENTE ->  X bancoConsultado = AUSENTE)) & (bancoConsultado = OPERATIVO ->  X bancoConsultado = OPERATIVO)) & (bancoConsultado = MANTENIMIENTO ->  X bancoConsultado = MANTENIMIENTO)) & (bancoConsultado = FUERA_SERVICIO ->  X bancoConsultado = FUERA_SERVICIO)) & (vigenciaConsultada = VIGENTE ->  X vigenciaConsultada = VIGENTE)) & (vigenciaConsultada = VENCIDA ->  X vigenciaConsultada = VENCIDA))) 
+  [LTL            True           N/A    P18_captura_inmutable_durante_el_intento]
+028 : G ((fase = ESPERA & enviar) -> ((datosEntrada = DATOS_A ->  X datosIntento = DATOS_A) & (datosEntrada = DATOS_B ->  X datosIntento = DATOS_B))) 
+  [LTL            True           N/A    P19_copia_datos_de_entrada]
+029 : G ((fase = ESPERA & enviar) -> ((((bancoEntrada = AUSENTE ->  X bancoConsultado = AUSENTE) & (bancoEntrada = OPERATIVO ->  X bancoConsultado = OPERATIVO)) & (bancoEntrada = MANTENIMIENTO ->  X bancoConsultado = MANTENIMIENTO)) & (bancoEntrada = FUERA_SERVICIO ->  X bancoConsultado = FUERA_SERVICIO))) 
+  [LTL            True           N/A    P20_copia_banco_de_entrada]
+030 : G ((fase = ESPERA & enviar) -> ((vigenciaEntrada = VIGENTE ->  X vigenciaConsultada = VIGENTE) & (vigenciaEntrada = VENCIDA ->  X vigenciaConsultada = VENCIDA))) 
+  [LTL            True           N/A    P21_copia_vigencia_de_entrada]

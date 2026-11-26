@@ -1,0 +1,40 @@
+class Banco
+
+types
+  -- Estados enumerados mediante quotes.
+  public EstadoBanco = <OPERATIVO> | <MANTENIMIENTO> | <FUERA_SERVICIO>;
+  public Observacion :: estado : EstadoBanco
+                        instante : nat;
+
+instance variables
+  private idBanco : token := mk_token("SIN_ID");
+  private estado : EstadoBanco := <MANTENIMIENTO>;
+  private instante : nat := 0;
+
+operations
+  public Banco : token * EstadoBanco * nat ==> Banco
+  Banco(id, e, t) ==
+    atomic (idBanco := id; estado := e; instante := t)
+  post idBanco = id and estado = e and instante = t;
+
+  public pure obtenerId : () ==> token
+  obtenerId() == return idBanco;
+
+  public pure obtenerEstado : () ==> EstadoBanco
+  obtenerEstado() == return estado;
+
+  -- Devuelve un valor, no una referencia modificable al banco.
+  public pure obtenerObservacion : () ==> Observacion
+  obtenerObservacion() == return mk_Observacion(estado, instante);
+
+  public actualizarEstado : EstadoBanco * nat ==> ()
+  actualizarEstado(e, t) == atomic (estado := e; instante := t)
+  pre t >= instante
+  post estado = e and instante = t and idBanco = idBanco~;
+
+sync
+  -- Las consultas pure no admiten mutex en VDM++; devuelven valores.
+  -- El middleware no expone sus objetos Banco a otros llamadores.
+  mutex(actualizarEstado);
+
+end Banco

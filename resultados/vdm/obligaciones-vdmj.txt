@@ -1,0 +1,1219 @@
+Parsed 3 classes in 0.19 secs. No syntax errors
+Type checked 3 classes in 0.629 secs. No type errors
+WARNING: Final field classDefinition in class com.fujitsu.vdmj.po.statements.POAssignmentStatement has been mutated reflectively by class com.fujitsu.vdmj.mapper.ClassMapper in unnamed module @3e44f2a5 (vdmj-4.7.0.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+Generated 88 proof obligations:
+
+Proof Obligation 1: (Unproved)
+RegistroOperacion: total function obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 18:7
+(forall mk_RegistroOperacion($any1, $any2, m, eb, r):RegistroOperacion! &
+  is_(inv_RegistroOperacion(mk_RegistroOperacion!($any1, $any2, m, eb, r)), bool))
+
+Proof Obligation 2: (Unproved)
+RegistroOperacion: invariant satisfiability obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 18:7
+exists mk_RegistroOperacion(-, -, m, eb, r) : RegistroOperacion & ((m > 0) and ((r = <AUTORIZADA>) => (eb = <OPERATIVO>)))
+
+Proof Obligation 3: (Unproved)
+Solicitud: total function obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 30:7
+(forall s:Solicitud! &
+  is_(inv_Solicitud(s), bool))
+
+Proof Obligation 4: (Unproved)
+Solicitud: invariant satisfiability obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 30:7
+exists s : Solicitud & ((s.monto) > 0)
+
+Proof Obligation 5: (Unchecked)
+Unchecked in VDM++/RT
+inv_MiddlewareVerificador: state invariant obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 49:3
+After instance variable initializers ((idsProcesados = (elems (historial))) and (((len historial) = (card idsProcesados)) and (((dom solicitudes) = idsProcesados) and (((len autorizadas) = (len historial)) and ((forall b in set (dom directorio) & (((directorio(b).obtenerId)() = b) and (((directorio(b).obtenerObservacion)().instante) <= ahora))) and ((idsProcesados = {id | id in set (dom estados) & (estados(id) = <AUTORIZADA>)}) and (forall i in set (inds historial) & let id : token = historial(i), a : Autorizacion = autorizadas(i), s : Solicitud = solicitudes(id) in (((s.idTransaccion) = id) and (((a.registro) = mk_RegistroOperacion(id, (s.idBancoDestino), (s.monto), <OPERATIVO>, <AUTORIZADA>)) and (((a.observadoEn) <= (a.instante)) and (((a.instante) <= ahora) and (((a.instante) - (a.observadoEn)) <= MAX_EDAD))))))))))))
+
+Proof Obligation 6: (Unproved)
+procesar(Solicitud): map apply obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 73:10
+(forall s:Solicitud, obj_MiddlewareVerificador(idsProcesados |-> idsProcesados, historial |-> historial, directorio |-> directorio, solicitudes |-> solicitudes, autorizadas |-> autorizadas, estados |-> estados, ahora |-> ahora):MiddlewareVerificador &
+  (((s.idTransaccion) in set idsProcesados) =>
+    (s.idTransaccion) in set dom solicitudes))
+
+Proof Obligation 7: (Unproved)
+procesar(Solicitud): state invariant obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 77:7
+(forall s:Solicitud, obj_MiddlewareVerificador(idsProcesados |-> idsProcesados, historial |-> historial, directorio |-> directorio, solicitudes |-> solicitudes, autorizadas |-> autorizadas, estados |-> estados, ahora |-> ahora):MiddlewareVerificador &
+  (not ((s.idTransaccion) in set idsProcesados) =>
+    (let estados : map token to EstadoTransaccion = (estados ++ {(s.idTransaccion) |-> <PENDIENTE>}) in
+      ((idsProcesados = (elems (historial))) and (((len historial) = (card idsProcesados)) and (((dom solicitudes) = idsProcesados) and (((len autorizadas) = (len historial)) and ((forall b in set (dom directorio) & (((directorio(b).obtenerId)() = b) and (((directorio(b).obtenerObservacion)().instante) <= ahora))) and ((idsProcesados = {id | id in set (dom estados) & (estados(id) = <AUTORIZADA>)}) and (forall i in set (inds historial) & let id : token = historial(i), a : Autorizacion = autorizadas(i), s : Solicitud = solicitudes(id) in (((s.idTransaccion) = id) and (((a.registro) = mk_RegistroOperacion(id, (s.idBancoDestino), (s.monto), <OPERATIVO>, <AUTORIZADA>)) and (((a.observadoEn) <= (a.instante)) and (((a.instante) <= ahora) and (((a.instante) - (a.observadoEn)) <= MAX_EDAD)))))))))))))))
+
+Proof Obligation 8: (Unproved)
+procesar(Solicitud): state invariant obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 80:9
+(forall s:Solicitud, obj_MiddlewareVerificador(idsProcesados |-> idsProcesados, historial |-> historial, directorio |-> directorio, solicitudes |-> solicitudes, autorizadas |-> autorizadas, estados |-> estados, ahora |-> ahora):MiddlewareVerificador &
+  (not ((s.idTransaccion) in set idsProcesados) =>
+    (let estados : map token to EstadoTransaccion = (estados ++ {(s.idTransaccion) |-> <PENDIENTE>}) in
+      (((s.idBancoDestino) not in set (dom directorio)) =>
+        (let estados : map token to EstadoTransaccion = (estados ++ {(s.idTransaccion) |-> <RECHAZADA>}) in
+          ((idsProcesados = (elems (historial))) and (((len historial) = (card idsProcesados)) and (((dom solicitudes) = idsProcesados) and (((len autorizadas) = (len historial)) and ((forall b in set (dom directorio) & (((directorio(b).obtenerId)() = b) and (((directorio(b).obtenerObservacion)().instante) <= ahora))) and ((idsProcesados = {id | id in set (dom estados) & (estados(id) = <AUTORIZADA>)}) and (forall i in set (inds historial) & let id : token = historial(i), a : Autorizacion = autorizadas(i), s : Solicitud = solicitudes(id) in (((s.idTransaccion) = id) and (((a.registro) = mk_RegistroOperacion(id, (s.idBancoDestino), (s.monto), <OPERATIVO>, <AUTORIZADA>)) and (((a.observadoEn) <= (a.instante)) and (((a.instante) <= ahora) and (((a.instante) - (a.observadoEn)) <= MAX_EDAD)))))))))))))))))
+
+Proof Obligation 9: (Unproved)
+procesar(Solicitud): state invariant obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 87:13
+(forall s:Solicitud, obj_MiddlewareVerificador(idsProcesados |-> idsProcesados, historial |-> historial, directorio |-> directorio, solicitudes |-> solicitudes, autorizadas |-> autorizadas, estados |-> estados, ahora |-> ahora):MiddlewareVerificador &
+  (not ((s.idTransaccion) in set idsProcesados) =>
+    (let estados : map token to EstadoTransaccion = (estados ++ {(s.idTransaccion) |-> <PENDIENTE>}) in
+      (not ((s.idBancoDestino) not in set (dom directorio)) =>
+        (forall $obtenerObservacion:Banco`Observacion & -- Call to Banco`obtenerObservacion
+          (let o : Banco`Observacion = $obtenerObservacion in
+            (((o.estado) <> <OPERATIVO>) =>
+              (let estados : map token to EstadoTransaccion = (estados ++ {(s.idTransaccion) |-> <RECHAZADA>}) in
+                ((idsProcesados = (elems (historial))) and (((len historial) = (card idsProcesados)) and (((dom solicitudes) = idsProcesados) and (((len autorizadas) = (len historial)) and ((forall b in set (dom directorio) & (((directorio(b).obtenerId)() = b) and (((directorio(b).obtenerObservacion)().instante) <= ahora))) and ((idsProcesados = {id | id in set (dom estados) & (estados(id) = <AUTORIZADA>)}) and (forall i in set (inds historial) & let id : token = historial(i), a : Autorizacion = autorizadas(i), s : Solicitud = solicitudes(id) in (((s.idTransaccion) = id) and (((a.registro) = mk_RegistroOperacion(id, (s.idBancoDestino), (s.monto), <OPERATIVO>, <AUTORIZADA>)) and (((a.observadoEn) <= (a.instante)) and (((a.instante) <= ahora) and (((a.instante) - (a.observadoEn)) <= MAX_EDAD))))))))))))))))))))
+
+Proof Obligation 10: (Unproved)
+procesar(Solicitud): state invariant obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 92:13
+(forall s:Solicitud, obj_MiddlewareVerificador(idsProcesados |-> idsProcesados, historial |-> historial, directorio |-> directorio, solicitudes |-> solicitudes, autorizadas |-> autorizadas, estados |-> estados, ahora |-> ahora):MiddlewareVerificador &
+  (not ((s.idTransaccion) in set idsProcesados) =>
+    (let estados : map token to EstadoTransaccion = (estados ++ {(s.idTransaccion) |-> <PENDIENTE>}) in
+      (not ((s.idBancoDestino) not in set (dom directorio)) =>
+        (forall $obtenerObservacion:Banco`Observacion & -- Call to Banco`obtenerObservacion
+          (let o : Banco`Observacion = $obtenerObservacion in
+            (not ((o.estado) <> <OPERATIVO>) =>
+              (((ahora - (o.instante)) > MAX_EDAD) =>
+                (let estados : map token to EstadoTransaccion = (estados ++ {(s.idTransaccion) |-> <RECHAZADA>}) in
+                  ((idsProcesados = (elems (historial))) and (((len historial) = (card idsProcesados)) and (((dom solicitudes) = idsProcesados) and (((len autorizadas) = (len historial)) and ((forall b in set (dom directorio) & (((directorio(b).obtenerId)() = b) and (((directorio(b).obtenerObservacion)().instante) <= ahora))) and ((idsProcesados = {id | id in set (dom estados) & (estados(id) = <AUTORIZADA>)}) and (forall i in set (inds historial) & let id : token = historial(i), a : Autorizacion = autorizadas(i), s : Solicitud = solicitudes(id) in (((s.idTransaccion) = id) and (((a.registro) = mk_RegistroOperacion(id, (s.idBancoDestino), (s.monto), <OPERATIVO>, <AUTORIZADA>)) and (((a.observadoEn) <= (a.instante)) and (((a.instante) <= ahora) and (((a.instante) - (a.observadoEn)) <= MAX_EDAD)))))))))))))))))))))
+
+Proof Obligation 11: (Unchecked)
+Unchecked in VDM++/RT
+procesar(Solicitud): operation precondition obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 95:17
+(forall s:Solicitud, obj_MiddlewareVerificador(idsProcesados |-> idsProcesados, historial |-> historial, directorio |-> directorio, solicitudes |-> solicitudes, autorizadas |-> autorizadas, estados |-> estados, ahora |-> ahora):MiddlewareVerificador &
+  (not ((s.idTransaccion) in set idsProcesados) =>
+    (let estados : map token to EstadoTransaccion = (estados ++ {(s.idTransaccion) |-> <PENDIENTE>}) in
+      (not ((s.idBancoDestino) not in set (dom directorio)) =>
+        (forall $obtenerObservacion:Banco`Observacion & -- Call to Banco`obtenerObservacion
+          (let o : Banco`Observacion = $obtenerObservacion in
+            (not ((o.estado) <> <OPERATIVO>) =>
+              (not ((ahora - (o.instante)) > MAX_EDAD) =>
+                pre_(registrarId, s, o)))))))))
+
+Proof Obligation 12: (Unchecked)
+Unchecked in VDM++/RT
+registrarId(Solicitud, Observacion): map compatible obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 133:21
+(forall s:Solicitud, o:Banco`Observacion, obj_MiddlewareVerificador(idsProcesados |-> idsProcesados, historial |-> historial, directorio |-> directorio, solicitudes |-> solicitudes, autorizadas |-> autorizadas, estados |-> estados, ahora |-> ahora):MiddlewareVerificador & pre_registrarId(s, o) =>
+  (let $atomic1 : set of token = (idsProcesados union {(s.idTransaccion)}) in
+    (let $atomic2 : seq of token = (historial ^ [(s.idTransaccion)]) in
+      forall ldom1 in set dom solicitudes, rdom2 in set dom {(s.idTransaccion) |-> s} & ldom1 = rdom2 => solicitudes(ldom1) = {(s.idTransaccion) |-> s}(rdom2))))
+
+Proof Obligation 13: (Unchecked)
+Unchecked in VDM++/RT
+registrarId(Solicitud, Observacion): subtype obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 135:8
+(forall s:Solicitud, o:Banco`Observacion, obj_MiddlewareVerificador(idsProcesados |-> idsProcesados, historial |-> historial, directorio |-> directorio, solicitudes |-> solicitudes, autorizadas |-> autorizadas, estados |-> estados, ahora |-> ahora):MiddlewareVerificador & pre_registrarId(s, o) =>
+  (let $atomic1 : set of token = (idsProcesados union {(s.idTransaccion)}) in
+    (let $atomic2 : seq of token = (historial ^ [(s.idTransaccion)]) in
+      (let $atomic3 : map token to Solicitud = (solicitudes munion {(s.idTransaccion) |-> s}) in
+        inv_RegistroOperacion(mk_RegistroOperacion((s.idTransaccion), (s.idBancoDestino), (s.monto), (o.estado), <AUTORIZADA>))))))
+
+Proof Obligation 14: (Unchecked)
+Unchecked in VDM++/RT
+registrarId(Solicitud, Observacion): state invariant obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 131:6
+(forall s:Solicitud, o:Banco`Observacion, obj_MiddlewareVerificador(idsProcesados |-> idsProcesados, historial |-> historial, directorio |-> directorio, solicitudes |-> solicitudes, autorizadas |-> autorizadas, estados |-> estados, ahora |-> ahora):MiddlewareVerificador & pre_registrarId(s, o) =>
+  (let $atomic1 : set of token = (idsProcesados union {(s.idTransaccion)}) in
+    (let $atomic2 : seq of token = (historial ^ [(s.idTransaccion)]) in
+      (let $atomic3 : map token to Solicitud = (solicitudes munion {(s.idTransaccion) |-> s}) in
+        (let $atomic4 : seq of Autorizacion = (autorizadas ^ [mk_Autorizacion(mk_RegistroOperacion((s.idTransaccion), (s.idBancoDestino), (s.monto), (o.estado), <AUTORIZADA>), ahora, (o.instante))]) in
+          (let $atomic5 : map token to EstadoTransaccion = (estados ++ {(s.idTransaccion) |-> <AUTORIZADA>}) in
+            (let idsProcesados : set of token = $atomic1 in
+              (let historial : seq of token = $atomic2 in
+                (let solicitudes : map token to Solicitud = $atomic3 in
+                  (let autorizadas : seq of Autorizacion = $atomic4 in
+                    (let estados : map token to EstadoTransaccion = $atomic5 in
+                      ((idsProcesados = (elems (historial))) and (((len historial) = (card idsProcesados)) and (((dom solicitudes) = idsProcesados) and (((len autorizadas) = (len historial)) and ((forall b in set (dom directorio) & (((directorio(b).obtenerId)() = b) and (((directorio(b).obtenerObservacion)().instante) <= ahora))) and ((idsProcesados = {id | id in set (dom estados) & (estados(id) = <AUTORIZADA>)}) and (forall i in set (inds historial) & let id : token = historial(i), a : Autorizacion = autorizadas(i), s : Solicitud = solicitudes(id) in (((s.idTransaccion) = id) and (((a.registro) = mk_RegistroOperacion(id, (s.idBancoDestino), (s.monto), <OPERATIVO>, <AUTORIZADA>)) and (((a.observadoEn) <= (a.instante)) and (((a.instante) <= ahora) and (((a.instante) - (a.observadoEn)) <= MAX_EDAD)))))))))))))))))))))))
+
+Proof Obligation 15: (Unchecked)
+Unchecked in VDM++/RT
+registrarBanco(token, EstadoBanco): map compatible obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 159:19
+(forall id:token, e:EstadoBanco, obj_MiddlewareVerificador(idsProcesados |-> idsProcesados, historial |-> historial, directorio |-> directorio, solicitudes |-> solicitudes, autorizadas |-> autorizadas, estados |-> estados, ahora |-> ahora):MiddlewareVerificador & pre_registrarBanco(id, e) =>
+  (-- Ambiguous call to new Banco(id, e, ahora), affects (estados, historial, solicitudes, ahora, idsProcesados, directorio, autorizadas)? at 159:45
+    forall ldom1 in set dom directorio, rdom2 in set dom {id |-> new Banco(id, e, ahora)} & ldom1 = rdom2 => directorio(ldom1) = {id |-> new Banco(id, e, ahora)}(rdom2)))
+
+Proof Obligation 16: (Unchecked)
+Unchecked in VDM++/RT
+registrarBanco(token, EstadoBanco): state invariant obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 159:5
+(forall id:token, e:EstadoBanco, obj_MiddlewareVerificador(idsProcesados |-> idsProcesados, historial |-> historial, directorio |-> directorio, solicitudes |-> solicitudes, autorizadas |-> autorizadas, estados |-> estados, ahora |-> ahora):MiddlewareVerificador & pre_registrarBanco(id, e) =>
+  (-- Ambiguous call to new Banco(id, e, ahora), affects (estados, historial, solicitudes, ahora, idsProcesados, directorio, autorizadas)? at 159:45
+    (-- Ambiguous assignment, affects (directorio)? at 159:30
+      ((idsProcesados = (elems (historial))) and (((len historial) = (card idsProcesados)) and (((dom solicitudes) = idsProcesados) and (((len autorizadas) = (len historial)) and ((forall b in set (dom directorio) & (((directorio(b).obtenerId)() = b) and (((directorio(b).obtenerObservacion)().instante) <= ahora))) and ((idsProcesados = {id | id in set (dom estados) & (estados(id) = <AUTORIZADA>)}) and (forall i in set (inds historial) & let id : token = historial(i), a : Autorizacion = autorizadas(i), s : Solicitud = solicitudes(id) in (((s.idTransaccion) = id) and (((a.registro) = mk_RegistroOperacion(id, (s.idBancoDestino), (s.monto), <OPERATIVO>, <AUTORIZADA>)) and (((a.observadoEn) <= (a.instante)) and (((a.instante) <= ahora) and (((a.instante) - (a.observadoEn)) <= MAX_EDAD)))))))))))))))
+
+Proof Obligation 17: (Unchecked)
+Unchecked in VDM++/RT
+actualizarBanco(token, EstadoBanco): operation precondition obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 169:29
+(forall id:token, e:EstadoBanco, obj_MiddlewareVerificador(idsProcesados |-> idsProcesados, historial |-> historial, directorio |-> directorio, solicitudes |-> solicitudes, autorizadas |-> autorizadas, estados |-> estados, ahora |-> ahora):MiddlewareVerificador & pre_actualizarBanco(id, e) =>
+  pre_((directorio(id).actualizarEstado), e, ahora))
+
+Proof Obligation 18: (Unproved)
+avanzarTiempo(nat1): state invariant obligation in 'MiddlewareVerificador' (vdm/modelo/MiddlewareVerificador.vdmpp) at line 189:27
+(forall delta:nat1, obj_MiddlewareVerificador(idsProcesados |-> idsProcesados, historial |-> historial, directorio |-> directorio, solicitudes |-> solicitudes, autorizadas |-> autorizadas, estados |-> estados, ahora |-> ahora):MiddlewareVerificador &
+  (let ahora : nat = (ahora + delta) in
+    ((idsProcesados = (elems (historial))) and (((len historial) = (card idsProcesados)) and (((dom solicitudes) = idsProcesados) and (((len autorizadas) = (len historial)) and ((forall b in set (dom directorio) & (((directorio(b).obtenerId)() = b) and (((directorio(b).obtenerObservacion)().instante) <= ahora))) and ((idsProcesados = {id | id in set (dom estados) & (estados(id) = <AUTORIZADA>)}) and (forall i in set (inds historial) & let id : token = historial(i), a : Autorizacion = autorizadas(i), s : Solicitud = solicitudes(id) in (((s.idTransaccion) = id) and (((a.registro) = mk_RegistroOperacion(id, (s.idBancoDestino), (s.monto), <OPERATIVO>, <AUTORIZADA>)) and (((a.observadoEn) <= (a.instante)) and (((a.instante) <= ahora) and (((a.instante) - (a.observadoEn)) <= MAX_EDAD))))))))))))))
+
+Proof Obligation 19: (Unproved)
+solicitud(seq of (char), real); pre_solicitud(seq of (char), real): total function obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 12:9
+(forall tx:seq of char, m:real &
+  is_(pre_solicitud(tx, m), bool))
+
+Proof Obligation 20: (Unproved)
+solicitud(seq of (char), real): subtype obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 9:23
+(forall tx:seq of char, m:real & pre_solicitud(tx, m) =>
+  MiddlewareVerificador`inv_Solicitud(mk_MiddlewareVerificador`Solicitud(mk_token(tx), B1, mk_token("USR001"), mk_token(("REQ-" ^ tx)), mk_token("USR002"), m, <TRANSFERENCIA_INTERBANCARIA>)))
+
+Proof Obligation 21: (Unchecked)
+Unchecked in VDM++/RT
+AceptacionDecimal(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 52:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 49:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 22: (Unproved)
+AceptacionDecimal(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 57:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 49:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $verIdsProcesados:set of token & -- Call to MiddlewareVerificador`verIdsProcesados
+                  (forall $verHistorial:seq of token & -- Call to MiddlewareVerificador`verHistorial
+                    (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                      (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                        ((r1 = <VALIDA>) =>
+                          (($verIdsProcesados = {mk_token("TX001")}) =>
+                            (($verHistorial = [mk_token("TX001")]) =>
+                              mk_token("TX001") in set dom $verEstados)))))))))))))))
+
+Proof Obligation 23: (Unproved)
+AceptacionDecimal(): sequence apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 58:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 49:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $verIdsProcesados:set of token & -- Call to MiddlewareVerificador`verIdsProcesados
+                  (forall $verHistorial:seq of token & -- Call to MiddlewareVerificador`verHistorial
+                    (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                      (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                        ((r1 = <VALIDA>) =>
+                          (($verIdsProcesados = {mk_token("TX001")}) =>
+                            (($verHistorial = [mk_token("TX001")]) =>
+                              (($verEstados(mk_token("TX001")) = <AUTORIZADA>) =>
+                                1 in set inds $verAutorizadas))))))))))))))))
+
+Proof Obligation 24: (Unproved)
+AceptacionDecimal(): subtype obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 58:44
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 49:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $verIdsProcesados:set of token & -- Call to MiddlewareVerificador`verIdsProcesados
+                  (forall $verHistorial:seq of token & -- Call to MiddlewareVerificador`verHistorial
+                    (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                      (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                        ((r1 = <VALIDA>) =>
+                          (($verIdsProcesados = {mk_token("TX001")}) =>
+                            (($verHistorial = [mk_token("TX001")]) =>
+                              (($verEstados(mk_token("TX001")) = <AUTORIZADA>) =>
+                                MiddlewareVerificador`inv_RegistroOperacion(mk_MiddlewareVerificador`RegistroOperacion(mk_token("TX001"), B1, 10.5, <OPERATIVO>, <AUTORIZADA>))))))))))))))))))
+
+Proof Obligation 25: (Unchecked)
+Unchecked in VDM++/RT
+DuplicadoExacto(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 68:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 64:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 26: (Unproved)
+DuplicadoExacto(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 72:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 64:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                    (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                      (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                        (forall $verHistorial:seq of token & -- Call to MiddlewareVerificador`verHistorial
+                          (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                            ((r1 = <VALIDA>) =>
+                              ((r2 = <DUPLICADA>) =>
+                                (((len $verAutorizadas) = 1) =>
+                                  (((len $verHistorial) = 1) =>
+                                    (s.idTransaccion) in set dom $verEstados))))))))))))))))))
+
+Proof Obligation 27: (Unchecked)
+Unchecked in VDM++/RT
+ConflictoMonto(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 81:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 77:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 28: (Unproved)
+ConflictoMonto(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 84:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 77:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                    (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                      (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                          (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                            ((r1 = <VALIDA>) =>
+                              ((r2 = <CONFLICTO>) =>
+                                (s.idTransaccion) in set dom $verSolicitudes))))))))))))))))
+
+Proof Obligation 29: (Unproved)
+ConflictoMonto(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 86:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 77:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                    (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                      (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                          (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                            ((r1 = <VALIDA>) =>
+                              ((r2 = <CONFLICTO>) =>
+                                (($verSolicitudes((s.idTransaccion)) = s) =>
+                                  (((len $verAutorizadas) = 1) =>
+                                    (s.idTransaccion) in set dom $verEstados))))))))))))))))))
+
+Proof Obligation 30: (Unchecked)
+Unchecked in VDM++/RT
+ConflictoReceptor(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 95:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 91:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 31: (Unproved)
+ConflictoReceptor(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 98:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 91:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                    (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                      (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                          (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                            ((r1 = <VALIDA>) =>
+                              ((r2 = <CONFLICTO>) =>
+                                (s.idTransaccion) in set dom $verSolicitudes))))))))))))))))
+
+Proof Obligation 32: (Unproved)
+ConflictoReceptor(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 100:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 91:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                    (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                      (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                          (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                            ((r1 = <VALIDA>) =>
+                              ((r2 = <CONFLICTO>) =>
+                                (($verSolicitudes((s.idTransaccion)) = s) =>
+                                  (((len $verAutorizadas) = 1) =>
+                                    (s.idTransaccion) in set dom $verEstados))))))))))))))))))
+
+Proof Obligation 33: (Unchecked)
+Unchecked in VDM++/RT
+IdGlobalOtroUsuario(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 109:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 105:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 34: (Unproved)
+IdGlobalOtroUsuario(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 112:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 105:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                    (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                      (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                          (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                            ((r1 = <VALIDA>) =>
+                              ((r2 = <CONFLICTO>) =>
+                                (s.idTransaccion) in set dom $verSolicitudes))))))))))))))))
+
+Proof Obligation 35: (Unproved)
+IdGlobalOtroUsuario(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 114:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 105:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                    (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                      (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                          (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                            ((r1 = <VALIDA>) =>
+                              ((r2 = <CONFLICTO>) =>
+                                (($verSolicitudes((s.idTransaccion)) = s) =>
+                                  (((len $verAutorizadas) = 1) =>
+                                    (s.idTransaccion) in set dom $verEstados))))))))))))))))))
+
+Proof Obligation 36: (Unchecked)
+Unchecked in VDM++/RT
+ConflictoBanco(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 123:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 119:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 37: (Unproved)
+ConflictoBanco(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 126:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 119:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                    (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                      (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                          (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                            ((r1 = <VALIDA>) =>
+                              ((r2 = <CONFLICTO>) =>
+                                (s.idTransaccion) in set dom $verSolicitudes))))))))))))))))
+
+Proof Obligation 38: (Unproved)
+ConflictoBanco(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 128:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 119:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                    (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                      (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                          (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                            ((r1 = <VALIDA>) =>
+                              ((r2 = <CONFLICTO>) =>
+                                (($verSolicitudes((s.idTransaccion)) = s) =>
+                                  (((len $verAutorizadas) = 1) =>
+                                    (s.idTransaccion) in set dom $verEstados))))))))))))))))))
+
+Proof Obligation 39: (Unchecked)
+Unchecked in VDM++/RT
+ConflictoModalidad(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 137:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 133:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 40: (Unproved)
+ConflictoModalidad(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 140:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 133:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                    (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                      (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                          (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                            ((r1 = <VALIDA>) =>
+                              ((r2 = <CONFLICTO>) =>
+                                (s.idTransaccion) in set dom $verSolicitudes))))))))))))))))
+
+Proof Obligation 41: (Unproved)
+ConflictoModalidad(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 142:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 133:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                    (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                      (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                          (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                            ((r1 = <VALIDA>) =>
+                              ((r2 = <CONFLICTO>) =>
+                                (($verSolicitudes((s.idTransaccion)) = s) =>
+                                  (((len $verAutorizadas) = 1) =>
+                                    (s.idTransaccion) in set dom $verEstados))))))))))))))))))
+
+Proof Obligation 42: (Unchecked)
+Unchecked in VDM++/RT
+ConflictoSolicitud(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 151:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 147:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 43: (Unproved)
+ConflictoSolicitud(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 154:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 147:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                    (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                      (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                          (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                            ((r1 = <VALIDA>) =>
+                              ((r2 = <CONFLICTO>) =>
+                                (s.idTransaccion) in set dom $verSolicitudes))))))))))))))))
+
+Proof Obligation 44: (Unproved)
+ConflictoSolicitud(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 156:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 147:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                    (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                      (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                          (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                            ((r1 = <VALIDA>) =>
+                              ((r2 = <CONFLICTO>) =>
+                                (($verSolicitudes((s.idTransaccion)) = s) =>
+                                  (((len $verAutorizadas) = 1) =>
+                                    (s.idTransaccion) in set dom $verEstados))))))))))))))))))
+
+Proof Obligation 45: (Unchecked)
+Unchecked in VDM++/RT
+Mantenimiento(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 164:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 161:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      pre_((g.registrarBanco), B1, <MANTENIMIENTO>))))
+
+Proof Obligation 46: (Unproved)
+Mantenimiento(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 169:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 161:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $verHistorial:seq of token & -- Call to MiddlewareVerificador`verHistorial
+                  (forall $verIdsProcesados:set of token & -- Call to MiddlewareVerificador`verIdsProcesados
+                    (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                      (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                        (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                          ((r1 = <BANCO_NO_DISPONIBLE>) =>
+                            (($verHistorial = []) =>
+                              (($verIdsProcesados = {}) =>
+                                (($verAutorizadas = []) =>
+                                  (($verSolicitudes = {|->}) =>
+                                    (s.idTransaccion) in set dom $verEstados))))))))))))))))))
+
+Proof Obligation 47: (Unchecked)
+Unchecked in VDM++/RT
+FueraServicio(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 177:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 174:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      pre_((g.registrarBanco), B1, <FUERA_SERVICIO>))))
+
+Proof Obligation 48: (Unproved)
+FueraServicio(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 182:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 174:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $verHistorial:seq of token & -- Call to MiddlewareVerificador`verHistorial
+                  (forall $verIdsProcesados:set of token & -- Call to MiddlewareVerificador`verIdsProcesados
+                    (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                      (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                        (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                          ((r1 = <BANCO_NO_DISPONIBLE>) =>
+                            (($verHistorial = []) =>
+                              (($verIdsProcesados = {}) =>
+                                (($verAutorizadas = []) =>
+                                  (($verSolicitudes = {|->}) =>
+                                    (s.idTransaccion) in set dom $verEstados))))))))))))))))))
+
+Proof Obligation 49: (Unproved)
+BancoSinRegistro(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 193:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 187:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+          (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+            (forall $verHistorial:seq of token & -- Call to MiddlewareVerificador`verHistorial
+              (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                (forall $verificarBanco:bool & -- Call to MiddlewareVerificador`verificarBanco
+                  (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                    ((r1 = <SIN_DIRECTORIO>) =>
+                      (($verHistorial = []) =>
+                        (($verAutorizadas = []) =>
+                          ((not $verificarBanco) =>
+                            (s.idTransaccion) in set dom $verEstados))))))))))))))
+
+Proof Obligation 50: (Unchecked)
+Unchecked in VDM++/RT
+EstadoVencido(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 201:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 198:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 51: (Unchecked)
+Unchecked in VDM++/RT
+LimiteVigencia(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 213:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 210:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 52: (Unproved)
+LimiteVigencia(): subtype obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 214:21
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 210:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          MiddlewareVerificador`MAX_EDAD > 0)))))
+
+Proof Obligation 53: (Unproved)
+LimiteVigencia(): sequence apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 217:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 210:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+            (/* Undefined PP/RT MiddlewareVerificador`post_avanzarTiempo */ true => -- Call to MiddlewareVerificador`avanzarTiempo
+              (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+                (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                  (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                    (forall $verificarBanco:bool & -- Call to MiddlewareVerificador`verificarBanco
+                      (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                        ((r1 = <VALIDA>) =>
+                          ($verificarBanco =>
+                            1 in set inds $verAutorizadas))))))))))))))
+
+Proof Obligation 54: (Unchecked)
+Unchecked in VDM++/RT
+ActualizacionTrasVencimiento(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 226:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 222:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 55: (Unchecked)
+Unchecked in VDM++/RT
+ActualizacionTrasVencimiento(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 229:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 222:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (/* Undefined PP/RT MiddlewareVerificador`post_avanzarTiempo */ true => -- Call to MiddlewareVerificador`avanzarTiempo
+              (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                  (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                    pre_((g.actualizarBanco), B1, <OPERATIVO>)))))))))))
+
+Proof Obligation 56: (Unproved)
+ActualizacionTrasVencimiento(): sequence apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 232:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 222:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (/* Undefined PP/RT MiddlewareVerificador`post_avanzarTiempo */ true => -- Call to MiddlewareVerificador`avanzarTiempo
+              (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                  (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                    (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+                      (/* Undefined PP/RT MiddlewareVerificador`pre_actualizarBanco, MiddlewareVerificador`post_actualizarBanco */ true => -- Call to MiddlewareVerificador`actualizarBanco
+                        (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+                          (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                            (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                              (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                                (forall $verAutorizadas$1:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                                  (forall $verTiempo:nat & -- Call to MiddlewareVerificador`verTiempo
+                                    ((r1 = <DESACTUALIZADO>) =>
+                                      ((r2 = <VALIDA>) =>
+                                        (((len $verAutorizadas) = 1) =>
+                                          1 in set inds $verAutorizadas$1)))))))))))))))))))))
+
+Proof Obligation 57: (Unchecked)
+Unchecked in VDM++/RT
+RecuperacionBanco(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 241:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 237:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      pre_((g.registrarBanco), B1, <MANTENIMIENTO>))))
+
+Proof Obligation 58: (Unchecked)
+Unchecked in VDM++/RT
+RecuperacionBanco(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 243:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 237:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                pre_((g.actualizarBanco), B1, <OPERATIVO>)))))))))
+
+Proof Obligation 59: (Unproved)
+RecuperacionBanco(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 246:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 237:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+                  (/* Undefined PP/RT MiddlewareVerificador`pre_actualizarBanco, MiddlewareVerificador`post_actualizarBanco */ true => -- Call to MiddlewareVerificador`actualizarBanco
+                    (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+                      (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                        (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                          (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                            (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                              ((r1 = <BANCO_NO_DISPONIBLE>) =>
+                                ((r2 = <VALIDA>) =>
+                                  (((len $verAutorizadas) = 1) =>
+                                    (s.idTransaccion) in set dom $verEstados))))))))))))))))))
+
+Proof Obligation 60: (Unchecked)
+Unchecked in VDM++/RT
+CambioBancoTrasAceptar(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 255:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 251:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 61: (Unchecked)
+Unchecked in VDM++/RT
+CambioBancoTrasAceptar(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 256:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 251:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                pre_((g.actualizarBanco), B1, <MANTENIMIENTO>)))))))))
+
+Proof Obligation 62: (Unproved)
+CambioBancoTrasAceptar(): sequence apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 258:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 251:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+                  (/* Undefined PP/RT MiddlewareVerificador`pre_actualizarBanco, MiddlewareVerificador`post_actualizarBanco */ true => -- Call to MiddlewareVerificador`actualizarBanco
+                    (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+                      (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                        (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                          (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                            (forall $oldState2:MiddlewareVerificador &
+                              (forall $verBanco:Banco`Observacion & /* Undefined PP/RT MiddlewareVerificador`pre_verBanco */ true => -- Call to MiddlewareVerificador`verBanco
+                                (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                                  ((r1 = <VALIDA>) =>
+                                    ((r2 = <DUPLICADA>) =>
+                                      1 in set inds $verAutorizadas)))))))))))))))))))
+
+Proof Obligation 63: (Unproved)
+CambioBancoTrasAceptar(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 260:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 251:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+                  (/* Undefined PP/RT MiddlewareVerificador`pre_actualizarBanco, MiddlewareVerificador`post_actualizarBanco */ true => -- Call to MiddlewareVerificador`actualizarBanco
+                    (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+                      (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                        (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                          (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                            (forall $oldState2:MiddlewareVerificador &
+                              (forall $verBanco:Banco`Observacion & /* Undefined PP/RT MiddlewareVerificador`pre_verBanco */ true => -- Call to MiddlewareVerificador`verBanco
+                                (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                                  ((r1 = <VALIDA>) =>
+                                    ((r2 = <DUPLICADA>) =>
+                                      (((($verAutorizadas(1).registro).estadoBanco) = <OPERATIVO>) =>
+                                        ((($verBanco.estado) = <MANTENIMIENTO>) =>
+                                          (s.idTransaccion) in set dom $verEstados)))))))))))))))))))))
+
+Proof Obligation 64: (Unchecked)
+Unchecked in VDM++/RT
+HistorialOrdenadoSinDuplicados(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 269:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 265:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 65: (Unchecked)
+Unchecked in VDM++/RT
+RechazoNoConsumeId(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 285:26
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 281:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+          (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+            pre_((g.registrarBanco), B1, <OPERATIVO>)))))))
+
+Proof Obligation 66: (Unchecked)
+Unchecked in VDM++/RT
+ObjetoBanco(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 303:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new Banco(B1, <MANTENIMIENTO>, 0) with no state updates? at 301:22
+    (-- Ambiguous definition, affects (anterior)? at 302:9
+      (let b : Banco = new Banco(B1, <MANTENIMIENTO>, 0), anterior : Banco`Observacion = (b.obtenerObservacion)() in
+        pre_((b.actualizarEstado), <OPERATIVO>, 3)))))
+
+Proof Obligation 67: (Unchecked)
+Unchecked in VDM++/RT
+DirectorioVariosBancos(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 315:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 311:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 68: (Unchecked)
+Unchecked in VDM++/RT
+DirectorioVariosBancos(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 316:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 311:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          pre_((g.registrarBanco), B2, <MANTENIMIENTO>))))))
+
+Proof Obligation 69: (Unchecked)
+Unchecked in VDM++/RT
+DirectorioVariosBancos(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 319:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 311:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+            (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+              (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+                (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                  (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                    (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                      (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                        (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                          pre_((g.actualizarBanco), B2, <FUERA_SERVICIO>))))))))))))))
+
+Proof Obligation 70: (Unchecked)
+Unchecked in VDM++/RT
+ConsultaDuplicado(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 332:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 329:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 71: (Unchecked)
+Unchecked in VDM++/RT
+ModalidadYapeo(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 344:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 341:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 72: (Unproved)
+ModalidadYapeo(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 347:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 341:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                  ((r1 = <VALIDA>) =>
+                    (s.idTransaccion) in set dom $verSolicitudes))))))))))
+
+Proof Obligation 73: (Unchecked)
+Unchecked in VDM++/RT
+EvidenciaHistoricaConTiempo(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 355:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 352:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 74: (Unchecked)
+Unchecked in VDM++/RT
+EvidenciaHistoricaConTiempo(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 356:27
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 352:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (/* Undefined PP/RT MiddlewareVerificador`post_avanzarTiempo */ true => -- Call to MiddlewareVerificador`avanzarTiempo
+                    pre_((g.actualizarBanco), B1, <FUERA_SERVICIO>)))))))))))
+
+Proof Obligation 75: (Unproved)
+EvidenciaHistoricaConTiempo(): sequence apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 358:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 352:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (/* Undefined PP/RT MiddlewareVerificador`post_avanzarTiempo */ true => -- Call to MiddlewareVerificador`avanzarTiempo
+                    (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+                      (/* Undefined PP/RT MiddlewareVerificador`pre_actualizarBanco, MiddlewareVerificador`post_actualizarBanco */ true => -- Call to MiddlewareVerificador`actualizarBanco
+                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                          (forall $verAutorizadas$1:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                            (forall $verAutorizadas$2:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                              ((r1 = <VALIDA>) =>
+                                1 in set inds $verAutorizadas))))))))))))))))
+
+Proof Obligation 76: (Unproved)
+EvidenciaHistoricaConTiempo(): sequence apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 359:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 352:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (/* Undefined PP/RT MiddlewareVerificador`post_avanzarTiempo */ true => -- Call to MiddlewareVerificador`avanzarTiempo
+                    (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+                      (/* Undefined PP/RT MiddlewareVerificador`pre_actualizarBanco, MiddlewareVerificador`post_actualizarBanco */ true => -- Call to MiddlewareVerificador`actualizarBanco
+                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                          (forall $verAutorizadas$1:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                            (forall $verAutorizadas$2:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                              ((r1 = <VALIDA>) =>
+                                ((($verAutorizadas(1).observadoEn) = 0) =>
+                                  1 in set inds $verAutorizadas$1)))))))))))))))))
+
+Proof Obligation 77: (Unproved)
+EvidenciaHistoricaConTiempo(): sequence apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 360:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 352:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                  (/* Undefined PP/RT MiddlewareVerificador`post_avanzarTiempo */ true => -- Call to MiddlewareVerificador`avanzarTiempo
+                    (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+                      (/* Undefined PP/RT MiddlewareVerificador`pre_actualizarBanco, MiddlewareVerificador`post_actualizarBanco */ true => -- Call to MiddlewareVerificador`actualizarBanco
+                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                          (forall $verAutorizadas$1:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                            (forall $verAutorizadas$2:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                              ((r1 = <VALIDA>) =>
+                                ((($verAutorizadas(1).observadoEn) = 0) =>
+                                  ((($verAutorizadas$1(1).instante) = 0) =>
+                                    1 in set inds $verAutorizadas$2))))))))))))))))))
+
+Proof Obligation 78: (Unchecked)
+Unchecked in VDM++/RT
+TresReintentos(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 378:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 374:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r1 = (undefined), r2 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 79: (Unchecked)
+Unchecked in VDM++/RT
+EstadoNoOperativoAntesDeVigencia(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 391:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 388:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r = (undefined) in
+      pre_((g.registrarBanco), B1, <FUERA_SERVICIO>))))
+
+Proof Obligation 80: (Unproved)
+EstadoNoOperativoAntesDeVigencia(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 395:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 388:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (/* Undefined PP/RT MiddlewareVerificador`post_avanzarTiempo */ true => -- Call to MiddlewareVerificador`avanzarTiempo
+              (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                  (let r : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                    (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                      (forall $verIdsProcesados:set of token & -- Call to MiddlewareVerificador`verIdsProcesados
+                        (forall $verHistorial:seq of token & -- Call to MiddlewareVerificador`verHistorial
+                          (forall $verSolicitudes:map token to MiddlewareVerificador`Solicitud & -- Call to MiddlewareVerificador`verSolicitudes
+                            (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                              ((r = <BANCO_NO_DISPONIBLE>) =>
+                                (s.idTransaccion) in set dom $verEstados))))))))))))))))
+
+Proof Obligation 81: (Unchecked)
+Unchecked in VDM++/RT
+DuplicadoAntesDeVigencia(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 406:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 402:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r = (undefined), a = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 82: (Unproved)
+DuplicadoAntesDeVigencia(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 414:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 402:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), r = (undefined), a = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+              (let r : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                (not (r <> <VALIDA>) =>
+                  (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                    (let a : seq of MiddlewareVerificador`Autorizacion = $verAutorizadas in
+                      (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                        (/* Undefined PP/RT MiddlewareVerificador`post_avanzarTiempo */ true => -- Call to MiddlewareVerificador`avanzarTiempo
+                          (forall $oldState3:MiddlewareVerificador, $newState3:MiddlewareVerificador &
+                            (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                              (let r : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                                (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                                  (forall $verHistorial:seq of token & -- Call to MiddlewareVerificador`verHistorial
+                                    (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                                      ((r = <DUPLICADA>) =>
+                                        (($verAutorizadas = a) =>
+                                          (($verHistorial = [(s.idTransaccion)]) =>
+                                            (s.idTransaccion) in set dom $verEstados))))))))))))))))))))))
+
+Proof Obligation 83: (Unchecked)
+Unchecked in VDM++/RT
+VigenciaIndependientePorBanco(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 425:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 419:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s1 : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), s2 : MiddlewareVerificador`Solicitud = mu(solicitud("TX002", 20), idBancoDestino |-> B2), r1 = (undefined), r2 = (undefined) in
+      pre_((g.registrarBanco), B1, <OPERATIVO>))))
+
+Proof Obligation 84: (Unchecked)
+Unchecked in VDM++/RT
+VigenciaIndependientePorBanco(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 426:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 419:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s1 : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), s2 : MiddlewareVerificador`Solicitud = mu(solicitud("TX002", 20), idBancoDestino |-> B2), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          pre_((g.registrarBanco), B2, <OPERATIVO>))))))
+
+Proof Obligation 85: (Unchecked)
+Unchecked in VDM++/RT
+VigenciaIndependientePorBanco(): operation precondition obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 428:5
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 419:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s1 : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), s2 : MiddlewareVerificador`Solicitud = mu(solicitud("TX002", 20), idBancoDestino |-> B2), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+            (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+              (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+                (/* Undefined PP/RT MiddlewareVerificador`post_avanzarTiempo */ true => -- Call to MiddlewareVerificador`avanzarTiempo
+                  pre_((g.actualizarBanco), B2, <OPERATIVO>))))))))))
+
+Proof Obligation 86: (Unproved)
+VigenciaIndependientePorBanco(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 431:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 419:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s1 : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), s2 : MiddlewareVerificador`Solicitud = mu(solicitud("TX002", 20), idBancoDestino |-> B2), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+            (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+              (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+                (/* Undefined PP/RT MiddlewareVerificador`post_avanzarTiempo */ true => -- Call to MiddlewareVerificador`avanzarTiempo
+                  (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+                    (/* Undefined PP/RT MiddlewareVerificador`pre_actualizarBanco, MiddlewareVerificador`post_actualizarBanco */ true => -- Call to MiddlewareVerificador`actualizarBanco
+                      (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+                        (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                          (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                            (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                              (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                                (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                                  (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                                    (forall $verEstados$1:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                                      (forall $verHistorial:seq of token & -- Call to MiddlewareVerificador`verHistorial
+                                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                                          (forall $oldState3:MiddlewareVerificador &
+                                            (forall $verBanco:Banco`Observacion & /* Undefined PP/RT MiddlewareVerificador`pre_verBanco */ true => -- Call to MiddlewareVerificador`verBanco
+                                              (forall $oldState4:MiddlewareVerificador &
+                                                (forall $verBanco$1:Banco`Observacion & /* Undefined PP/RT MiddlewareVerificador`pre_verBanco */ true => -- Call to MiddlewareVerificador`verBanco
+                                                  ((r1 = <DESACTUALIZADO>) =>
+                                                    ((r2 = <VALIDA>) =>
+                                                      (s1.idTransaccion) in set dom $verEstados)))))))))))))))))))))))))))
+
+Proof Obligation 87: (Unproved)
+VigenciaIndependientePorBanco(): map apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 432:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 419:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s1 : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), s2 : MiddlewareVerificador`Solicitud = mu(solicitud("TX002", 20), idBancoDestino |-> B2), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+            (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+              (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+                (/* Undefined PP/RT MiddlewareVerificador`post_avanzarTiempo */ true => -- Call to MiddlewareVerificador`avanzarTiempo
+                  (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+                    (/* Undefined PP/RT MiddlewareVerificador`pre_actualizarBanco, MiddlewareVerificador`post_actualizarBanco */ true => -- Call to MiddlewareVerificador`actualizarBanco
+                      (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+                        (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                          (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                            (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                              (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                                (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                                  (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                                    (forall $verEstados$1:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                                      (forall $verHistorial:seq of token & -- Call to MiddlewareVerificador`verHistorial
+                                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                                          (forall $oldState3:MiddlewareVerificador &
+                                            (forall $verBanco:Banco`Observacion & /* Undefined PP/RT MiddlewareVerificador`pre_verBanco */ true => -- Call to MiddlewareVerificador`verBanco
+                                              (forall $oldState4:MiddlewareVerificador &
+                                                (forall $verBanco$1:Banco`Observacion & /* Undefined PP/RT MiddlewareVerificador`pre_verBanco */ true => -- Call to MiddlewareVerificador`verBanco
+                                                  ((r1 = <DESACTUALIZADO>) =>
+                                                    ((r2 = <VALIDA>) =>
+                                                      (($verEstados((s1.idTransaccion)) = <RECHAZADA>) =>
+                                                        (s2.idTransaccion) in set dom $verEstados$1))))))))))))))))))))))))))))
+
+Proof Obligation 88: (Unproved)
+VigenciaIndependientePorBanco(): sequence apply obligation in 'PruebasMiddleware' (vdm/pruebas/PruebasMiddleware.vdmpp) at line 434:11
+(forall obj_PruebasMiddleware():PruebasMiddleware &
+  (-- Ambiguous call to new MiddlewareVerificador() with no state updates? at 419:38
+    (let g : MiddlewareVerificador = new MiddlewareVerificador(), s1 : MiddlewareVerificador`Solicitud = solicitud("TX001", 10.5), s2 : MiddlewareVerificador`Solicitud = mu(solicitud("TX002", 20), idBancoDestino |-> B2), r1 = (undefined), r2 = (undefined) in
+      (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+        (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+          (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+            (/* Undefined PP/RT MiddlewareVerificador`pre_registrarBanco, MiddlewareVerificador`post_registrarBanco */ true => -- Call to MiddlewareVerificador`registrarBanco
+              (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+                (/* Undefined PP/RT MiddlewareVerificador`post_avanzarTiempo */ true => -- Call to MiddlewareVerificador`avanzarTiempo
+                  (forall $oldState:MiddlewareVerificador, $newState:MiddlewareVerificador &
+                    (/* Undefined PP/RT MiddlewareVerificador`pre_actualizarBanco, MiddlewareVerificador`post_actualizarBanco */ true => -- Call to MiddlewareVerificador`actualizarBanco
+                      (forall $oldState1:MiddlewareVerificador, $newState1:MiddlewareVerificador &
+                        (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                          (let r1 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                            (forall $oldState2:MiddlewareVerificador, $newState2:MiddlewareVerificador &
+                              (forall $procesar:MiddlewareVerificador`ResultadoVerificacion & /* Undefined PP/RT MiddlewareVerificador`post_procesar */ true => -- Call to MiddlewareVerificador`procesar
+                                (let r2 : MiddlewareVerificador`ResultadoVerificacion = $procesar in
+                                  (forall $verEstados:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                                    (forall $verEstados$1:map token to MiddlewareVerificador`EstadoTransaccion & -- Call to MiddlewareVerificador`verEstados
+                                      (forall $verHistorial:seq of token & -- Call to MiddlewareVerificador`verHistorial
+                                        (forall $verAutorizadas:seq of MiddlewareVerificador`Autorizacion & -- Call to MiddlewareVerificador`verAutorizadas
+                                          (forall $oldState3:MiddlewareVerificador &
+                                            (forall $verBanco:Banco`Observacion & /* Undefined PP/RT MiddlewareVerificador`pre_verBanco */ true => -- Call to MiddlewareVerificador`verBanco
+                                              (forall $oldState4:MiddlewareVerificador &
+                                                (forall $verBanco$1:Banco`Observacion & /* Undefined PP/RT MiddlewareVerificador`pre_verBanco */ true => -- Call to MiddlewareVerificador`verBanco
+                                                  ((r1 = <DESACTUALIZADO>) =>
+                                                    ((r2 = <VALIDA>) =>
+                                                      (($verEstados((s1.idTransaccion)) = <RECHAZADA>) =>
+                                                        (($verEstados$1((s2.idTransaccion)) = <AUTORIZADA>) =>
+                                                          (($verHistorial = [(s2.idTransaccion)]) =>
+                                                            1 in set inds $verAutorizadas))))))))))))))))))))))))))))))
+
+Analysed 3 classes in 0.778 secs. No POG errors
+Bye

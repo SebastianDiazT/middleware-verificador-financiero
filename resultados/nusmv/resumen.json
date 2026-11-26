@@ -1,0 +1,169 @@
+{
+  "herramienta": "NuSMV 2.7.1",
+  "modelo": "middleware_detallado.smv",
+  "sha256Modelo": "a4c2eb5cc7b46fda9d9a8e3cc6e36a3436aa0f99fcd8ff98aabb9638b12a0fc3",
+  "sha256Ejecutable": "a0aef81aabf1d686fbb07e0c32f93b23cd452bd49ca357f583ec7b51484b8c14",
+  "relacionTotal": true,
+  "estadosAlcanzables": 209,
+  "combinacionesDeEstado": 362880,
+  "diametro": 12,
+  "ltlVerdaderas": 21,
+  "ctlVerdaderas": 10,
+  "propiedades": [
+    {
+      "nombre": "P01_unicidad",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P02_evidencia_de_autorizacion",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P03_respuesta_eventual",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P04_prioridad_del_id",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P05_id_libre_consulta_directorio",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P06_duplicado_exacto",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P07_conflicto_de_datos",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P08_directorio_ausente",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P09_prioridad_de_estado_bancario",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P10_observacion_vencida",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P11_vigencia_habilita_registro",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P12_sin_efecto_fuera_del_registro",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P13_muestra_y_limpia_respuesta",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P14_registro_solo_si_elegible",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P15_recepcion_y_captura",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P16_ruta_de_observacion_presente",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P17_operativo_pasa_a_vigencia",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P18_captura_inmutable_durante_el_intento",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P19_copia_datos_de_entrada",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P20_copia_banco_de_entrada",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "P21_copia_vigencia_de_entrada",
+      "logica": "LTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "A01_alcanza_valida",
+      "logica": "CTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "A02_alcanza_duplicada",
+      "logica": "CTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "A03_alcanza_conflicto",
+      "logica": "CTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "A04_alcanza_sin_directorio",
+      "logica": "CTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "A05_alcanza_banco_no_disponible",
+      "logica": "CTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "A06_alcanza_desactualizado",
+      "logica": "CTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "A07_recuperacion_y_reintento",
+      "logica": "CTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "A08_duplicado_aun_sin_directorio",
+      "logica": "CTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "A09_conflicto_aun_con_banco_valido",
+      "logica": "CTL",
+      "resultado": "true"
+    },
+    {
+      "nombre": "A10_prioridad_banco_no_operativo_sobre_vigencia",
+      "logica": "CTL",
+      "resultado": "true"
+    }
+  ]
+}
